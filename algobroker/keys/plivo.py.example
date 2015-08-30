@@ -6,6 +6,7 @@ PLIVO_AUTH_TOKEN = "Enter your Plivo AUTH TOKEN here"
 # Enter your Plivo phone number. This will show up on your caller ID
 plivo_src_number = "14153337777"
 plivo_dst_number = {
-    "trader1" : "14153337777"
+    "trader1" : "14153337777",
+    "trader2" : "14153337777"
 }
 

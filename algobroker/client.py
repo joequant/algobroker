@@ -13,8 +13,8 @@ def client():
     zmq_socket.send(msgpack.packb(work_message))
     work_message = { 'action' : 'alert',
                      'type' : 'sms',
-                     'dst'  : 'trader1',
-                     'text' : 'hello' }
+                     'dst'  : 'trader2',
+                     'text' : 'hello and happy trading' }
     zmq_socket.send(msgpack.packb(work_message))
 
 #    zmq_socket = context.socket(zmq.PUSH)
