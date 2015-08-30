@@ -16,10 +16,10 @@ setup(
     long_description="""Algobroker is an interface to trading and events""",
     license="BSD",
     packages=find_packages(),
+    package_data = {'algobroker': ['algobroker/keys/*.example']},
     setup_requires = ['pyzmq',
                 'msgpack-python',
-                'plivo',
-                'twilio'],
+                'plivo'],
     use_2to3 = True
 )
                                 
