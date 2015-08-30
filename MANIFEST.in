@@ -1,0 +1,5 @@
+include *.py
+include *.md
+include *.sh
+include algobroker/*.py
+include algobroker/keys/*.example

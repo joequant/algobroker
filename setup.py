@@ -15,11 +15,11 @@ setup(
     description="Algorithmic trading broker",
     long_description="""Algobroker is an interface to trading and events""",
     license="BSD",
-    packages=find_packages(),
-    package_data = {'algobroker': ['algobroker/keys/*.example']},
+    packages=['algobroker'],
     setup_requires = ['pyzmq',
                 'msgpack-python',
                 'plivo'],
+    scripts = ['startup.sh'],
     use_2to3 = True
 )
                                 
