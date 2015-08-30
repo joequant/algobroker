@@ -17,7 +17,7 @@ def plivo():
     context = zmq.Context()
     # recieve work
     plivo_receiver = context.socket(zmq.PULL)
-    plivo_receiver.connect(algobroker.ports.plivo)
+    plivo_receiver.bind(algobroker.ports.plivo)
 
     while True:
         pprint.pprint("read data")

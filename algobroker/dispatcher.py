@@ -26,5 +26,7 @@ def dispatcher():
               data['type'] == 'sms'):
             pprint.pprint(data)
             sms_sender.send(msgpack.packb(data))
+        else:
+            print("unknown action")
 
 dispatcher()

@@ -17,11 +17,11 @@ def client():
                      'text' : 'hello' }
     zmq_socket.send(msgpack.packb(work_message))
 
-    zmq_socket = context.socket(zmq.PUSH)
-    zmq_socket.bind(algobroker.ports.plivo)
-    work_message = { 'action' : 'alert',
-                     'type' : 'sms',
-                     'dst'  : 'trader1',
-                     'text' : 'hello' }
-    zmq_socket.send(msgpack.packb(work_message))
+#    zmq_socket = context.socket(zmq.PUSH)
+#    zmq_socket.bind(algobroker.ports.plivo)
+#    work_message = { 'action' : 'alert',
+#                     'type' : 'sms',
+#                     'dst'  : 'trader1',
+#                     'text' : 'hello' }
+#    zmq_socket.send(msgpack.packb(work_message))
 client()
