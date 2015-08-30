@@ -1,3 +1,6 @@
+# Copyright (C) 2015 Bitquant Research Laboratories (Asia) Limited
+# Released under the Simplified BSD License
+
 import time
 import zmq
 import algobroker
