@@ -13,11 +13,10 @@ setup(
     long_description="""Algobroker is an interface to trading and events""",
     license="BSD",
     packages=find_packages(),
-    extras_require = {
-    'zerorpc' : ['zerorpc'],
-    'plivo' : ['plivo'],
-    'twilio' : ['twilio'],
-    },
+    setup_requires = ['pyzmq',
+                'msgpack-python',
+                'plivo',
+                'twilio'],
     use_2to3 = True
 )
                                 
