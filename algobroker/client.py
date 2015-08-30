@@ -1,13 +1,27 @@
 import time
 import zmq
+import algobroker
+import msgpack
 
-def producer():
+def client():
     context = zmq.Context()
     zmq_socket = context.socket(zmq.PUSH)
-    zmq_socket.bind("tcp://127.0.0.1:5557")
+    zmq_socket.bind(algobroker.ports.dispatcher)
     # Start your result manager and workers before you start your
-    for num in range(20000):
-        work_message = { 'num' : num }
-        zmq_socket.send_json(work_message)
+    work_message = { 'action' : 'log',
+                     'item' : 'hello' }
+    zmq_socket.send(msgpack.packb(work_message))
+    work_message = { 'action' : 'alert',
+                     'type' : 'sms',
+                     'dst'  : 'trader1',
+                     'text' : 'hello' }
+    zmq_socket.send(msgpack.packb(work_message))
 
-producer()
+    zmq_socket = context.socket(zmq.PUSH)
+    zmq_socket.bind(algobroker.ports.plivo)
+    work_message = { 'action' : 'alert',
+                     'type' : 'sms',
+                     'dst'  : 'trader1',
+                     'text' : 'hello' }
+    zmq_socket.send(msgpack.packb(work_message))
+client()
