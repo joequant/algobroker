@@ -1,0 +1,8 @@
+# Your PLIVO_AUTH_ID and PLIVO_AUTH_TOKEN can be found
+# on your Plivo Dashboard https://manage.plivo.com/dashboard
+PLIVO_AUTH_ID = "Enter your Plivo AUTH ID here"
+PLIVO_AUTH_TOKEN = "Enter your Plivo AUTH TOKEN here"
+
+# Enter your Plivo phone number. This will show up on your caller ID
+plivo_number = "14153337777"
+
