@@ -13,7 +13,7 @@ class QuoteMonitor(object):
         self.time_limits = {}
         self.state = {}
         self.prev_state = {}
-        self.limits = {"3888.HK" : [ 15.0, 16.0],
+        self.limits = {"3888.HK" : [ 15.0, 16.50],
                        "0700.HK" : [ 125.0, 135.0],
                        "0388.HK" : [ 175.0, 185.0]}
         self.quotes = {}
@@ -22,12 +22,11 @@ class QuoteMonitor(object):
         self._context = zmq.Context()
         self._zmq_socket = self._context.socket(zmq.PUSH)
         self._zmq_socket.bind(algobroker.ports.dispatcher)
+        self._quote_source = self._context.socket(zmq.SUB)
+        self._quote_source.connect(algobroker.ports.yahoo_quoter)
+        self._quote_source.setsockopt(zmq.SUBSCRIBE, b'')
     def send_message(self, message):
         self._zmq_socket.send(msgpack.packb(message))
-    def get_quotes(self):
-        for i in self.limits.keys():
-            yahoo = Share(i)
-            self.quotes[i] = float(yahoo.get_price())
     def test_limits(self):
         for i in self.limits.keys():
             if i in self.limits and i in self.quotes:
@@ -66,13 +65,18 @@ class QuoteMonitor(object):
                          'text' : 'hello and happy trading' }
         self.send_message(work_message)
     def run_once(self):
-        self.get_quotes()
+        print("running alert loop")
+        data = msgpack.unpackb(self._quote_source.recv(),
+                               encoding='utf-8')
+        print(data)
+        for k, v in data.items():
+            self.quotes[k] = data[k]['last']
         self.test_limits()
         self.send_notices()
+            
     def run(self):
         while True:
             self.run_once()
-            time.sleep(self.sleep)
 
 if __name__ == "__main__":
     qm = QuoteMonitor()

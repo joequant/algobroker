@@ -19,3 +19,12 @@ separate module are:
 * performance. You can have multiple brokers that route to separate
   systems
 
+INSTALL
+=======
+
+To install, set up a plivo account and move 
+algobroker/keys/plivo.py.example to algobroker/keys/plivo.py
+
+This installation does a simple scan of the quotes from yahoo and
+sends out an sms message if it hits certain limits.
+
