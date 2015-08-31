@@ -1,6 +1,7 @@
 include *.py
 include *.md
 include *.sh
+include *.cfg
 include algobroker/*.py
 include algobroker/keys/*.example
 include algobroker/keys/__init__.py
