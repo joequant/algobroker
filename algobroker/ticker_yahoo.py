@@ -8,6 +8,7 @@ import zmq
 import algobroker
 from algobroker import AlgoObject
 import msgpack
+import pprint
 from yahoo_finance import Share
 
 class YahooTicker(AlgoObject):
@@ -17,8 +18,9 @@ class YahooTicker(AlgoObject):
         self.time_limits = {}
         self.state = {}
         self.prev_state = {}
-        self.assets = ["3888.HK", "0700.HK", "0388.HK"]
+        self.assets = []
         self.quotes = {}
+        self.timeout = 30000
         self.sleep = 30
         self.maintainence = 60 * 30
     def get_quotes(self):
@@ -32,7 +34,6 @@ class YahooTicker(AlgoObject):
                     }
         except OSError:
             self.error("Network Error")
-            time.sleep(60)
     def send_quotes(self):
         self.debug("Sending quotes")
         self.send_data(self.quotes)
@@ -44,12 +45,17 @@ class YahooTicker(AlgoObject):
                     'item' : self.quotes }
         self._logger.debug("Sending data")
         socket.send(msgpack.packb(message))
-    def run(self):
-        self.info("Starting ticker loop")
-        while True:
-            self.get_quotes()
-            self.send_quotes()
-            time.sleep(self.sleep)
+    def process_control(self, data):
+        self.debug("received control message")
+        if data['cmd'] == "set":
+            if 'assets' in data:
+                self.debug("setting asset list")
+                self.debug(pprint.pformat(data['assets']))
+                self.assets = data['assets']
+    def run_once(self):
+        self.debug("running loop function")
+        self.get_quotes()
+        self.send_quotes()
 
 if __name__ == "__main__":
     yq = YahooTicker()

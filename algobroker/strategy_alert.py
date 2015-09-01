@@ -7,6 +7,7 @@ import zmq
 import algobroker
 from algobroker import AlgoObject
 import msgpack
+import pprint
 
 class StrategyAlert(AlgoObject):
     def __init__(self):
@@ -16,9 +17,7 @@ class StrategyAlert(AlgoObject):
         self.time_limits = {}
         self.state = {}
         self.prev_state = {}
-        self.limits = {"3888.HK" : [ 15.5, 16.0],
-                       "0700.HK" : [ 127.5, 133.0],
-                       "0388.HK" : [ 180.0, 185.0]}
+        self.limits = {}
         self.quotes = {}
         self.maintainence = 60 * 30
         self._action_socket = self.socket(zmq.PUSH)
@@ -62,6 +61,13 @@ class StrategyAlert(AlgoObject):
                          'dst'  : 'trader1',
                          'text' : 'hello and happy trading' }
         self.send_action(work_message)
+    def process_control(self, data):
+        self.debug("getting control data")
+        if data['cmd'] == "set":
+            if 'limits' in data:
+                self.debug("setting limits")
+                self.debug(pprint.pformat(data))
+                self.limits = data['limits']
     def process_data(self, data):
         self.info("running alert loop")
         self.info(data)

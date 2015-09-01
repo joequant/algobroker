@@ -13,4 +13,18 @@ algobroker.send_control("broker_plivo",
     }
     })
 
+algobroker.send_control("ticker_yahoo",
+                       {	
+    "cmd" : "set",     
+    "assets" : ["3888.HK", "0700.HK", "0388.HK"]
+    })
 
+algobroker.send_control("strategy_alert",
+                        {	
+    "cmd" : "set",
+    "limits" : {
+    "3888.HK" : [ 15.5, 16.0],	
+    "0700.HK" : [ 127.5, 133.0],
+    "0388.HK" : [ 180.0, 185.0]
+    }
+    })

@@ -52,6 +52,7 @@ class AlgoObject(object):
         self._poller.register(self._control_socket,
                               zmq.POLLIN)
         self.info("starting %s" % name)
+        self.timeout = None
     def socket(self, socket_type):
         return self._context.socket(socket_type)
     def send_data(self, message):
@@ -74,10 +75,12 @@ class AlgoObject(object):
         raise NotImplementedError
     def process_control(self, data):
         pass
+    def run_once(self):
+        pass
     def run(self):
         while True:
             try:
-                socks = dict(self._poller.poll())
+                socks = dict(self._poller.poll(self.timeout))
             except KeyboardInterrupt:
                 break
             if self._control_socket in socks:
@@ -86,6 +89,7 @@ class AlgoObject(object):
             if self._data_socket in socks:
                 data = self.recv_data()
                 self.process_data(data)
+            self.run_once()
             
 
 class Broker(AlgoObject):
