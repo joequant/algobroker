@@ -5,28 +5,25 @@ import my_path
 import time
 import zmq
 import algobroker
+from algobroker import AlgoObject
 import msgpack
-from yahoo_finance import Share
 
-class QuoteMonitor(object):
+class StrategyAlert(AlgoObject):
     def __init__(self):
+        AlgoObject.__init__(self, "strategy_alert", zmq.PUSH)
         self.time_limits = {}
         self.state = {}
         self.prev_state = {}
-        self.limits = {"3888.HK" : [ 15.0, 16.50],
-                       "0700.HK" : [ 125.0, 135.0],
-                       "0388.HK" : [ 175.0, 185.0]}
+        self.limits = {"3888.HK" : [ 15.5, 16.0],
+                       "0700.HK" : [ 130, 133.0],
+                       "0388.HK" : [ 180.0, 185.0]}
         self.quotes = {}
         self.sleep = 30
         self.maintainence = 60 * 30
-        self._context = zmq.Context()
-        self._zmq_socket = self._context.socket(zmq.PUSH)
-        self._zmq_socket.bind(algobroker.ports.dispatcher)
+        self._zmq_socket.connect(algobroker.ports.dispatcher)
         self._quote_source = self._context.socket(zmq.SUB)
         self._quote_source.connect(algobroker.ports.yahoo_quoter)
         self._quote_source.setsockopt(zmq.SUBSCRIBE, b'')
-    def send_message(self, message):
-        self._zmq_socket.send(msgpack.packb(message))
     def test_limits(self):
         for i in self.limits.keys():
             if i in self.limits and i in self.quotes:
@@ -65,10 +62,10 @@ class QuoteMonitor(object):
                          'text' : 'hello and happy trading' }
         self.send_message(work_message)
     def run_once(self):
-        print("running alert loop")
+        self.info("running alert loop")
         data = msgpack.unpackb(self._quote_source.recv(),
                                encoding='utf-8')
-        print(data)
+        self.info(data)
         for k, v in data.items():
             self.quotes[k] = data[k]['last']
         self.test_limits()
@@ -79,5 +76,5 @@ class QuoteMonitor(object):
             self.run_once()
 
 if __name__ == "__main__":
-    qm = QuoteMonitor()
+    qm = StrategyAlert()
     qm.run()

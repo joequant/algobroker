@@ -1,15 +1,19 @@
 #!/usr/bin/python3
 # Copyright (C) 2015 Bitquant Research Laboratories (Asia) Limited
 # Released under the Simplified BSD License
+
 import my_path
 import time
 import zmq
 import algobroker
+from algobroker import AlgoObject
 import msgpack
 from yahoo_finance import Share
 
-class YahooQuoter(object):
+class YahooQuoter(AlgoObject):
     def __init__(self):
+        AlgoObject.__init__(self, "quoter_yahoo", zmq.PUB)
+        self._zmq_socket.bind(algobroker.ports.yahoo_quoter)
         self.time_limits = {}
         self.state = {}
         self.prev_state = {}
@@ -17,13 +21,8 @@ class YahooQuoter(object):
         self.quotes = {}
         self.sleep = 30
         self.maintainence = 60 * 30
-        self._context = zmq.Context()
-        self._zmq_socket = self._context.socket(zmq.PUB)
-        self._zmq_socket.bind(algobroker.ports.yahoo_quoter)
-    def send_message(self, message):
-        self._zmq_socket.send(msgpack.packb(message))
     def get_quotes(self):
-        print("getting quotes")
+        self.debug("getting quotes")
         try:
             for i in self.assets:
                 yahoo = Share(i)
@@ -32,10 +31,10 @@ class YahooQuoter(object):
                     "last" : float(yahoo.get_price())
                     }
         except OSError:
-            print("Network Error")
+            self.error("Network Error")
             time.sleep(60)
     def send_quotes(self):
-        print("sending quotes")
+        self.debug("Sending quotes")
         self.send_message(self.quotes)
     def test(self):
         self.get_quotes()
@@ -43,9 +42,10 @@ class YahooQuoter(object):
         socket.bind(algobroker.ports.dispatcher)
         message = { 'action' : 'log',
                     'item' : self.quotes }
-        print("sending data")
+        self._logger.debug("Sending data")
         socket.send(msgpack.packb(message))
     def run(self):
+        self.info("Starting quoter loop")
         while True:
             self.get_quotes()
             self.send_quotes()
