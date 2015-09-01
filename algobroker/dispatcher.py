@@ -12,12 +12,11 @@ from algobroker import Broker
 
 class Dispatcher(Broker):
     def __init__(self):
-        Broker.__init__(self, "dispatcher", 
-                        algobroker.ports.dispatcher)
+        Broker.__init__(self, "dispatcher")
         # send work
         self.sms_sender = self.socket(zmq.PUSH)
-        self.sms_sender.connect(algobroker.ports.plivo)
-    def process_request(self, data):
+        self.sms_sender.connect(algobroker.data_ports['broker_plivo'])
+    def process_data(self, data):
         if (data['action'] == "log"):
             self.warning(pprint.pformat(data))
         elif (data['action'] == 'alert' and \

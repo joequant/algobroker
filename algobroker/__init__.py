@@ -16,18 +16,45 @@ def logger(s : str):
     logger.addHandler(ch)
     return logger
 
+data_ports = {
+    "dispatcher" : "tcp://127.0.0.1:5557",
+    "broker_plivo" : "tcp://127.0.0.1:5558",
+    "strategy_alert" : "tcp://127.0.0.1:5559",
+    "ticker_yahoo" : "tcp://127.0.0.1:5560",
+    "ticker_bitfutures" : "tcp://127.0.0.1:5561"
+    }
+
+control_ports = {
+    "dispatcher" : "tcp://127.0.0.1:5577",
+    "broker_plivo" : "tcp://127.0.0.1:5578",
+    "strategy_alert" : "tcp://127.0.0.1:5579",
+    "ticker_yahoo" : "tcp://127.0.0.1:5580",
+    "ticker_bitfutures" : "tcp://127.0.0.1:5581"
+    }
+
 class AlgoObject(object):
     def __init__(self, name : str, socket_type):
-        self._context = zmq.Context()
-        self._zmq_socket = self.socket(socket_type)
         self._logger = logger(name)
+        self._context = zmq.Context()
+        self._poller = zmq.Poller()
+        self._data_socket = self.socket(socket_type)
+
+        self._control_socket = self.socket(zmq.PULL)
+        self._control_socket.bind(control_ports[name])
+        self._poller.register(self._data_socket,
+                              zmq.POLLIN)
+        self._poller.register(self._control_socket,
+                              zmq.POLLIN)
         self.info("starting %s" % name)
     def socket(self, socket_type):
         return self._context.socket(socket_type)
-    def send_message(self, message):
-        self._zmq_socket.send(msgpack.packb(message))
-    def recv_message(self):
-        return msgpack.unpackb(self._zmq_socket.recv(),
+    def send_data(self, message):
+        self._data_socket.send(msgpack.packb(message))
+    def recv_data(self):
+        return msgpack.unpackb(self._data_socket.recv(),
+                               encoding='utf-8')
+    def recv_control(self):
+        return msgpack.unpackb(self._control_socket.recv(),
                                encoding='utf-8')
     def debug(self, s):
         self._logger.debug(s)
@@ -37,26 +64,28 @@ class AlgoObject(object):
         self._logger.error(s)
     def warning(self, s):
         self._logger.warning(s)
-
-class Broker(AlgoObject):
-    def __init__(self, name, port):
-        AlgoObject.__init__(self, name, zmq.PULL)
-        self._zmq_socket.bind(port)
+    def process_data(self, data):
+        raise NotImplementedError
+    def process_control(self, data):
+        pass
     def run(self):
         while True:
-            self.debug("waiting for data")
-            data = self.recv_message()
-            self.debug("got_data")
-            self.process_request(data)
-    def process_request(self, data):
-        raise NotImplementedError
+            try:
+                socks = dict(self._poller.poll())
+            except KeyboardInterrupt:
+                break
+            if self._control_socket in socks:
+                control = self.recv_control()
+                self.process_control(control)
+            if self._data_socket in socks:
+                data = self.recv_data()
+                self.process_data(data)
+            
+
+class Broker(AlgoObject):
+    def __init__(self, name):
+        AlgoObject.__init__(self, name, zmq.PULL)
+        self._data_socket.bind(data_ports[name])
 
         
-class ports(object):
-    dispatcher = "tcp://127.0.0.1:5557"
-    plivo = "tcp://127.0.0.1:5558"
-    alert_set_quote = "tcp://127.0.0.1:5559"
-    yahoo_ticker = "tcp://127.0.0.1:5560"
-    bitfutures_ticker = "tcp://127.0.0.1:5560"
-
     

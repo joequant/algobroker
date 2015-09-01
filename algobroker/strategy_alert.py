@@ -10,20 +10,19 @@ import msgpack
 
 class StrategyAlert(AlgoObject):
     def __init__(self):
-        AlgoObject.__init__(self, "strategy_alert", zmq.PUSH)
+        AlgoObject.__init__(self, "strategy_alert", zmq.SUB)
+        self._data_socket.connect(algobroker.data_ports['ticker_yahoo'])
+        self._data_socket.setsockopt(zmq.SUBSCRIBE, b'')
         self.time_limits = {}
         self.state = {}
         self.prev_state = {}
         self.limits = {"3888.HK" : [ 15.5, 16.0],
-                       "0700.HK" : [ 130, 133.0],
+                       "0700.HK" : [ 127.5, 133.0],
                        "0388.HK" : [ 180.0, 185.0]}
         self.quotes = {}
-        self.sleep = 30
         self.maintainence = 60 * 30
-        self._zmq_socket.connect(algobroker.ports.dispatcher)
-        self._quote_source = self._context.socket(zmq.SUB)
-        self._quote_source.connect(algobroker.ports.yahoo_ticker)
-        self._quote_source.setsockopt(zmq.SUBSCRIBE, b'')
+        self._action_socket = self.socket(zmq.PUSH)
+        self._action_socket.connect(algobroker.data_ports['dispatcher'])
     def test_limits(self):
         for i in self.limits.keys():
             if i in self.limits and i in self.quotes:
@@ -34,6 +33,8 @@ class StrategyAlert(AlgoObject):
                     self.state[i] = "high"
                 else:
                     self.state[i] = "ok"
+    def send_action(self, message):
+        self._action_socket.send(msgpack.packb(message))
     def send_notices(self):
         msg = ""
         for k, v in self.state.items():
@@ -46,34 +47,28 @@ class StrategyAlert(AlgoObject):
                     msg += "%s - %f - %s | " % (k, self.quotes[k],
                                                 v)
         if msg != "":
-            self.send_message({'action' : 'alert',
-                               'type' : 'sms',
-                               'dst' : 'trader1',
-                               'text' : msg})
+            self.send_action({'action' : 'alert',
+                              'type' : 'sms',
+                              'dst' : 'trader1',
+                              'text' : msg})
         for k, v in self.state.items():
             self.prev_state[k] = v
     def test(self):
         work_message = { 'action' : 'log',
                          'item' : 'hello' }
-        self.send_message(work_message)
+        self.send_action(work_message)
         work_message = { 'action' : 'alert',
                          'type' : 'sms',
                          'dst'  : 'trader1',
                          'text' : 'hello and happy trading' }
-        self.send_message(work_message)
-    def run_once(self):
+        self.send_action(work_message)
+    def process_data(self, data):
         self.info("running alert loop")
-        data = msgpack.unpackb(self._quote_source.recv(),
-                               encoding='utf-8')
         self.info(data)
         for k, v in data.items():
             self.quotes[k] = data[k]['last']
         self.test_limits()
         self.send_notices()
-            
-    def run(self):
-        while True:
-            self.run_once()
 
 if __name__ == "__main__":
     qm = StrategyAlert()

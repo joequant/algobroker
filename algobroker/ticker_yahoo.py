@@ -13,7 +13,7 @@ from yahoo_finance import Share
 class YahooTicker(AlgoObject):
     def __init__(self):
         AlgoObject.__init__(self, "ticker_yahoo", zmq.PUB)
-        self._zmq_socket.bind(algobroker.ports.yahoo_ticker)
+        self._data_socket.bind(algobroker.data_ports["ticker_yahoo"])
         self.time_limits = {}
         self.state = {}
         self.prev_state = {}
@@ -35,7 +35,7 @@ class YahooTicker(AlgoObject):
             time.sleep(60)
     def send_quotes(self):
         self.debug("Sending quotes")
-        self.send_message(self.quotes)
+        self.send_data(self.quotes)
     def test(self):
         self.get_quotes()
         socket = self._context.socket(zmq.PUSH)

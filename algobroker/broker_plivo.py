@@ -11,12 +11,11 @@ import plivo
 
 class BrokerPlivo(Broker):
     def __init__(self):
-        Broker.__init__(self, "broker_plivo",
-                        algobroker.ports.plivo)
+        Broker.__init__(self, "broker_plivo")
         self.auth_id = plivo_keys.PLIVO_AUTH_ID
         self.auth_token = plivo_keys.PLIVO_AUTH_TOKEN
         self.api = plivo.RestAPI(self.auth_id, self.auth_token)
-    def process_request(self, data):
+    def process_data(self, data):
         if (data['action'] == "alert" and \
             data['type'] == 'sms'):
             params = {
