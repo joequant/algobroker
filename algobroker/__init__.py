@@ -4,15 +4,14 @@
 import logging
 import zmq
 import msgpack
-class AlgoBroker(object):
-    def hello(self, name):
-        return "Hello, %s" % name
+import time
 
 def logger(s : str):
     logger = logging.getLogger(s)
     logger.setLevel(logging.DEBUG)
     ch = logging.StreamHandler()
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter.converter = time.gmtime
     ch.setFormatter(formatter)
     logger.addHandler(ch)
     return logger
