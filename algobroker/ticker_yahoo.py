@@ -10,10 +10,10 @@ from algobroker import AlgoObject
 import msgpack
 from yahoo_finance import Share
 
-class YahooQuoter(AlgoObject):
+class YahooTicker(AlgoObject):
     def __init__(self):
-        AlgoObject.__init__(self, "quoter_yahoo", zmq.PUB)
-        self._zmq_socket.bind(algobroker.ports.yahoo_quoter)
+        AlgoObject.__init__(self, "ticker_yahoo", zmq.PUB)
+        self._zmq_socket.bind(algobroker.ports.yahoo_ticker)
         self.time_limits = {}
         self.state = {}
         self.prev_state = {}
@@ -45,12 +45,12 @@ class YahooQuoter(AlgoObject):
         self._logger.debug("Sending data")
         socket.send(msgpack.packb(message))
     def run(self):
-        self.info("Starting quoter loop")
+        self.info("Starting ticker loop")
         while True:
             self.get_quotes()
             self.send_quotes()
             time.sleep(self.sleep)
 
 if __name__ == "__main__":
-    yq = YahooQuoter()
+    yq = YahooTicker()
     yq.run()

@@ -22,7 +22,7 @@ class StrategyAlert(AlgoObject):
         self.maintainence = 60 * 30
         self._zmq_socket.connect(algobroker.ports.dispatcher)
         self._quote_source = self._context.socket(zmq.SUB)
-        self._quote_source.connect(algobroker.ports.yahoo_quoter)
+        self._quote_source.connect(algobroker.ports.yahoo_ticker)
         self._quote_source.setsockopt(zmq.SUBSCRIBE, b'')
     def test_limits(self):
         for i in self.limits.keys():
