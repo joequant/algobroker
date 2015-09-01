@@ -1,0 +1,16 @@
+#!/usr/bin/python3
+
+import algobroker
+algobroker.send_control("broker_plivo",
+                       {
+    "cmd" : "auth",
+    "PLIVO_AUTH_ID" : "MY PLIVO TOKENS",
+    "PLIVO_AUTH_TOKEN" : "MY PLIVO AUTH",
+    "src_number" : "14153337777",
+    "dst_number" : {
+    "trader1" : "+9999"
+    "trader2" : "+9999"
+    }
+    })
+
+

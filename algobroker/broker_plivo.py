@@ -6,21 +6,24 @@ import my_path
 import pprint
 import algobroker
 from algobroker import Broker
-import algobroker.keys.plivo as plivo_keys
 import plivo
 
 class BrokerPlivo(Broker):
     def __init__(self):
         Broker.__init__(self, "broker_plivo")
-        self.auth_id = plivo_keys.PLIVO_AUTH_ID
-        self.auth_token = plivo_keys.PLIVO_AUTH_TOKEN
-        self.api = plivo.RestAPI(self.auth_id, self.auth_token)
+        self.api = None
+        self.src_number = None
+        self.dst_number = None
     def process_data(self, data):
+        if self.api == None or \
+           self.src_number == None or \
+           self.dst_number == None:
+            self.error("keys not initialized")
         if (data['action'] == "alert" and \
             data['type'] == 'sms'):
             params = {
-                'src' : plivo_keys.plivo_src_number,
-                'dst' : plivo_keys.plivo_dst_number[data['dst']],
+                'src' : self.src_number,
+                'dst' : self.dst_number[data['dst']],
                 'text' : data['text'],
                 'method' : 'POST'
                 }
@@ -30,6 +33,17 @@ class BrokerPlivo(Broker):
         else:
             self.error("unknown item")
             self.error(pprint.pformat(data))
+    def process_control(self, data):
+        self.info("received control message")
+        try:
+            if data['cmd'] == "auth":
+                self.auth_id = data['PLIVO_AUTH_ID']
+                self.auth_token = data['PLIVO_AUTH_TOKEN']
+                self.api = plivo.RestAPI(self.auth_id, self.auth_token)
+                self.src_number = data['src_number']
+                self.dst_number = data['dst_number']
+        except:
+            self.error("error processing control message")
 
 if __name__ == "__main__":
     bp = BrokerPlivo()

@@ -32,6 +32,12 @@ control_ports = {
     "ticker_bitfutures" : "tcp://127.0.0.1:5581"
     }
 
+def send_control(name, data):
+    context = zmq.Context()
+    socket = context.socket(zmq.PUSH)
+    socket.connect(control_ports[name])
+    socket.send(msgpack.packb(data))
+
 class AlgoObject(object):
     def __init__(self, name : str, socket_type):
         self._logger = logger(name)

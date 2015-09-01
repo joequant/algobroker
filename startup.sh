@@ -3,5 +3,6 @@ python3 algobroker/broker_plivo.py &
 python3 algobroker/dispatcher.py &
 python3 algobroker/strategy_alert.py &
 python3 algobroker/ticker_yahoo.py &
+python3 init.py &
 
 
