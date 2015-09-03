@@ -4,5 +4,6 @@ include init.py.example
 include *.md
 include *.sh
 include *.cfg
+include *.patch
 include algobroker/*.py
 include algobroker/test/*.py

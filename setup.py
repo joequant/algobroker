@@ -16,9 +16,11 @@ setup(
     long_description="""Algobroker is an interface to trading and events""",
     license="BSD",
     packages=['algobroker'],
-    setup_requires = ['pyzmq',
+    install_requires = ['pyzmq',
                 'msgpack-python',
-                'plivo'],
+                'plivo',
+                      'yahoo_finance',
+                      'requests'],
     scripts = ['startup.sh'],
     use_2to3 = True
 )

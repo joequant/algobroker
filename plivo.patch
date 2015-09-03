@@ -1,0 +1,23 @@
+From eaf00e227a7ba61cc52ec903b7efde17688eb277 Mon Sep 17 00:00:00 2001
+From: Joseph C Wang <joequant@gmail.com>
+Date: Sun, 30 Aug 2015 15:15:17 +0800
+Subject: [PATCH] fix for python3
+
+This adds a decode to work in python3
+---
+ plivo.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/plivo.py b/plivo.py
+index 9f098f9..f8c34a5 100644
+--- a/plivo.py
++++ b/plivo.py
+@@ -75,7 +75,7 @@ def _request(self, method, path, data={}):
+         content = r.content
+         if content:
+             try:
+-                response = json.loads(content)
++                response = json.loads(content.decode("utf-8"))
+             except ValueError:
+                 response = content
+         else:
