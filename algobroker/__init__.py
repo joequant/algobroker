@@ -96,6 +96,3 @@ class Broker(AlgoObject):
     def __init__(self, name):
         AlgoObject.__init__(self, name, zmq.PULL)
         self._data_socket.bind(data_ports[name])
-
-        
-    

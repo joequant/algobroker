@@ -13,6 +13,7 @@ class StrategyAlert(AlgoObject):
     def __init__(self):
         AlgoObject.__init__(self, "strategy_alert", zmq.SUB)
         self._data_socket.connect(algobroker.data_ports['ticker_yahoo'])
+        self._data_socket.connect(algobroker.data_ports['ticker_bitfutures'])
         self._data_socket.setsockopt(zmq.SUBSCRIBE, b'')
         self.time_limits = {}
         self.state = {}
