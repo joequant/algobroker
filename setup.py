@@ -17,10 +17,13 @@ setup(
     license="BSD",
     packages=['algobroker'],
     install_requires = ['pyzmq',
-                'msgpack-python',
-                'plivo',
-                      'yahoo_finance',
-                      'requests'],
+                        'msgpack-python',
+                        'plivo',
+                        'numpy',
+                        'scipy',
+                        'python-dateutil',
+                        'yahoo_finance',
+                        'requests'],
     scripts = ['startup.sh'],
     use_2to3 = True
 )
