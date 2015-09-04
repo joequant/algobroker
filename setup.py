@@ -23,7 +23,8 @@ setup(
                         'scipy',
                         'python-dateutil',
                         'yahoo_finance',
-                        'requests'],
+                        'requests',
+                        'ib-api'],
     scripts = ['startup.sh'],
     use_2to3 = True
 )
