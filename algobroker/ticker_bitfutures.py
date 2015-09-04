@@ -9,12 +9,13 @@ import algobroker
 from algobroker import AlgoObject
 import msgpack
 import bitfutures
+import pprint
 
 class BitfuturesTicker(AlgoObject):
     def __init__(self):
         AlgoObject.__init__(self, "ticker_bitfutures", zmq.PUB)
         self._data_socket.bind(algobroker.data_ports["ticker_bitfutures"])
-        self.exchanges = ["bitmex"]
+        self.exchanges = []
         self.time_limits = {}
         self.state = {}
         self.prev_state = {}
@@ -48,6 +49,13 @@ class BitfuturesTicker(AlgoObject):
     def send_quotes(self):
         self.debug("Sending quotes")
         self.send_data(self.quotes)
+    def process_control(self, data):
+        self.debug("received control message")
+        if data['cmd'] == "set":
+            if 'exchanges' in data:
+                self.debug("setting exchange list")
+                self.debug(pprint.pformat(data['exchanges']))
+                self.exchanges = data['exchanges']
     def test(self):
         self.get_quotes()
         socket = self._context.socket(zmq.PUSH)
