@@ -8,7 +8,7 @@ import zmq
 import algobroker
 from algobroker import AlgoObject
 import msgpack
-import bitfutures
+from cryptoexchange import bitfutures
 import pprint
 
 class BitfuturesTicker(AlgoObject):
@@ -56,6 +56,9 @@ class BitfuturesTicker(AlgoObject):
                 self.debug("setting exchange list")
                 self.debug(pprint.pformat(data['exchanges']))
                 self.exchanges = data['exchanges']
+        elif data['cmd'] == "test":
+            self.debug("received test message")
+            self.test()
     def test(self):
         self.get_quotes()
         socket = self._context.socket(zmq.PUSH)

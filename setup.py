@@ -8,7 +8,7 @@ from setuptools import (
 
 setup(
     name="algobroker",
-    version = "0.0.4",
+    version = "0.0.5",
     author="Joseph C Wang",
     author_email='joequant@gmail.com',
     url="https://github.com/joequant/algobroker",
@@ -24,8 +24,9 @@ setup(
                         'python-dateutil',
                         'yahoo_finance',
                         'requests',
-                        'ib-api'],
-    scripts = ['startup.sh'],
+                        'ib-api',
+                        'cryptoexchange'],
+    scripts = ['start-algo.sh', 'stop-algo.sh'],
     use_2to3 = True
 )
                                 
