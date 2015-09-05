@@ -21,7 +21,8 @@ data_ports = {
     "broker_plivo" : "tcp://127.0.0.1:5558",
     "strategy_alert" : "tcp://127.0.0.1:5559",
     "ticker_yahoo" : "tcp://127.0.0.1:5560",
-    "ticker_bitfutures" : "tcp://127.0.0.1:5561"
+    "ticker_bitfutures" : "tcp://127.0.0.1:5561",
+    "broker_bitmex" : "tcp://127.0.0.1:5562"
     }
 
 control_ports = {
@@ -29,7 +30,8 @@ control_ports = {
     "broker_plivo" : "tcp://127.0.0.1:5578",
     "strategy_alert" : "tcp://127.0.0.1:5579",
     "ticker_yahoo" : "tcp://127.0.0.1:5580",
-    "ticker_bitfutures" : "tcp://127.0.0.1:5581"
+    "ticker_bitfutures" : "tcp://127.0.0.1:5581",
+    "broker_bitmex" : "tcp://127.0.0.1:5582"
     }
 
 def send_control(name, data):
