@@ -12,36 +12,40 @@ class BrokerBitmex(Broker):
     def __init__(self):
         Broker.__init__(self, "broker_bitmex")
         self.api = None
-        self.src_number = None
-        self.dst_number = None
     def process_data(self, data):
-        if self.api == None or \
-           self.src_number == None or \
-           self.dst_number == None:
+        if self.api == None:
             self.error("keys not initialized")
-        if (data['action'] == "alert" and \
-            data['type'] == 'sms'):
-            params = {
-                'src' : self.src_number,
-                'dst' : self.dst_number[data['dst']],
-                'text' : data['text'],
-                'method' : 'POST'
-                }
-            self.debug(pprint.pformat(params))
-            response = self.api.send_message(params)
-            self.debug(pprint.pformat(str(response)))
-        else:
-            self.error("unknown item")
             self.error(pprint.pformat(data))
+            return
+        cmd = data.get('cmd', None)
+        if cmd == 'order':
+            self.api.place_order(data.get('quantity', None),
+                                 data.get('symbol', None),
+                                 data.get('price', None))
+        elif cmd == 'cancel':
+            self.api.cancel(data.get('orderID', None))
+        elif cmd == 'cancel_all':
+            orders = self.api()
+            for i in orders:
+                self.api.cancel(i)
     def process_control(self, data):
         self.info("received control message")
         try:
-            if data['cmd'] == "auth":
-                self.auth_id = data['PLIVO_AUTH_ID']
-                self.auth_token = data['PLIVO_AUTH_TOKEN']
-                self.api = plivo.RestAPI(self.auth_id, self.auth_token)
-                self.src_number = data['src_number']
-                self.dst_number = data['dst_number']
+            if data.get('cmd', None) == "auth":
+                base_url = data.get('base_url', None)
+                login = data.get('login', None)
+                password = data.get('password', None)
+                otpToken = data.get('otpToken', None)
+                apiKey = data.get('apiKey', None)
+                apiSecret = data.get('apiSecret', None)
+                orderIDPrefix = data.get('orderIDPrefix', 'broker_bitmex_')
+                self.api = bitmex.BitMEX(base_url,
+                                         login,
+                                         password,
+                                         otpToken,
+                                         apiKey,
+                                         apiSecret,
+                                         orderIDPrefix)
         except:
             self.error("error processing control message")
 
