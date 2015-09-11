@@ -7,6 +7,8 @@ import pprint
 import algobroker
 from algobroker import Broker
 from cryptoexchange import bitmex
+import sys
+import traceback
 
 class BrokerBitmex(Broker):
     def __init__(self):
@@ -32,13 +34,14 @@ class BrokerBitmex(Broker):
         self.info("received control message")
         try:
             if data.get('cmd', None) == "auth":
+                self.info("received auth message")
                 base_url = data.get('base_url', None)
                 login = data.get('login', None)
                 password = data.get('password', None)
                 otpToken = data.get('otpToken', None)
                 apiKey = data.get('apiKey', None)
                 apiSecret = data.get('apiSecret', None)
-                orderIDPrefix = data.get('orderIDPrefix', 'broker_bitmex_')
+                orderIDPrefix = data.get('orderIDPrefix', 'algo_bitmex_')
                 self.api = bitmex.BitMEX(base_url,
                                          login,
                                          password,
@@ -48,6 +51,7 @@ class BrokerBitmex(Broker):
                                          orderIDPrefix)
         except:
             self.error("error processing control message")
+            self.error(traceback.format_exc())
 
 if __name__ == "__main__":
     bp = BrokerBitmex()
