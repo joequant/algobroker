@@ -8,7 +8,7 @@ from setuptools import (
 
 setup(
     name="algobroker",
-    version = "0.0.6",
+    version = "0.0.7",
     author="Joseph C Wang",
     author_email='joequant@gmail.com',
     url="https://github.com/joequant/algobroker",
