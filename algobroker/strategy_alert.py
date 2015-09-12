@@ -14,6 +14,7 @@ class StrategyAlert(AlgoObject):
         AlgoObject.__init__(self, "strategy_alert", zmq.SUB)
         self._data_socket.connect(algobroker.data_ports['ticker_yahoo'])
         self._data_socket.connect(algobroker.data_ports['ticker_bitfutures'])
+        self._data_socket.connect(algobroker.data_ports['ticker_bravenewcoin'])
         self._data_socket.setsockopt(zmq.SUBSCRIBE, b'')
         self.time_limits = {}
         self.state = {}
@@ -73,7 +74,8 @@ class StrategyAlert(AlgoObject):
         self.info("running alert loop")
         self.info(data)
         for k, v in data.items():
-            self.quotes[k] = data[k]['last']
+            if 'last' in v:
+                self.quotes[k] = v['last']
         self.test_limits()
         self.send_notices()
 

@@ -5,6 +5,7 @@ python3 algobroker/dispatcher.py &
 python3 algobroker/strategy_alert.py &
 python3 algobroker/ticker_yahoo.py &
 python3 algobroker/ticker_bitfutures.py &
+python3 algobroker/ticker_bravenewcoin.py &
 python3 init.py &
 
 
