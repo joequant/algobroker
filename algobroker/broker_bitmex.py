@@ -20,16 +20,22 @@ class BrokerBitmex(Broker):
             self.error(pprint.pformat(data))
             return
         cmd = data.get('cmd', None)
-        if cmd == 'order':
-            self.api.place_order(data.get('quantity', None),
-                                 data.get('symbol', None),
-                                 data.get('price', None))
-        elif cmd == 'cancel':
-            self.api.cancel(data.get('orderID', None))
-        elif cmd == 'cancel_all':
-            orders = self.api()
-            for i in orders:
-                self.api.cancel(i)
+        try:
+            if cmd == 'order':
+                self.api.place_order(data.get('quantity', None),
+                                     data.get('symbol', None),
+                                     data.get('price', None))
+            elif cmd == 'cancel':
+                self.api.cancel(data.get('orderID', None))
+            elif cmd == 'cancel_all':
+                orders = self.api()
+                for i in orders:
+                    self.api.cancel(i)
+            elif cmd == 'position':
+                self.info(pprint.pformat(self.api.position()))
+        except:
+            self.error("error processing data message")
+            self.error(traceback.format_exc())
     def process_control(self, data):
         self.info("received control message")
         try:
@@ -49,6 +55,7 @@ class BrokerBitmex(Broker):
                                          apiKey,
                                          apiSecret,
                                          orderIDPrefix)
+                self.api.authenticate()
         except:
             self.error("error processing control message")
             self.error(traceback.format_exc())
