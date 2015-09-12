@@ -6,6 +6,14 @@ algobroker.send("control",
      "cmd" : "set",     
      "assets" : ["3888.HK", "0700.HK", "0388.HK"]
      },
+    {"dest": "broker_bitmex",
+     "cmd" : "loglevel",
+     "level" : "DEBUG"
+    },
+    {"dest": "ticker_bitfutures",
+     "cmd" : "loglevel",
+     "level" : "DEBUG"
+    },
     {"dest": "ticker_bitfutures",
      "cmd" : "set",
      "exchanges" : ["bitmex"]

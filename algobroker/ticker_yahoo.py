@@ -27,7 +27,7 @@ class YahooTicker(algobroker.Ticker):
         except OSError:
             self.error("Network Error")
     def process_control(self, data):
-        self.debug("received control message")
+        algobroker.Ticker.process_control(self, data)
         if data['cmd'] == "set":
             if 'assets' in data:
                 self.debug("setting asset list")

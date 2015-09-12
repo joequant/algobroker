@@ -40,7 +40,7 @@ class BitfuturesTicker(algobroker.Ticker):
             self.error("Network Error")
             time.sleep(60)
     def process_control(self, data):
-        self.debug("received control message")
+        algobroker.Ticker.process_control(self, data)
         if data['cmd'] == "set":
             if 'exchanges' in data:
                 self.debug("setting exchange list")

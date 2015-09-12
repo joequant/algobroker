@@ -6,15 +6,25 @@ import zmq
 import msgpack
 import time
 
+
 def logger(s : str):
     logger = logging.getLogger(s)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
     ch = logging.StreamHandler()
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     formatter.converter = time.gmtime
     ch.setFormatter(formatter)
     logger.addHandler(ch)
     return logger
+
+loglevels = {
+    "CRITICAL" : logging.CRITICAL,
+    "ERROR" : logging.ERROR,
+    "WARNING" : logging.WARNING,
+    "INFO" : logging.INFO,
+    "DEBUG" : logging.DEBUG,
+    "NOTSET" : logging.NOTSET
+    }
 
 ports = {
     "data" : {
@@ -80,7 +90,11 @@ class AlgoObject(object):
     def process_data(self, data):
         raise NotImplementedError
     def process_control(self, data):
-        pass
+        self.debug("received control message")
+        if data.get('cmd', None) == 'loglevel':
+            if data.get('level', None) in loglevels:
+                self._logger.setLevel(loglevels[data['level']])
+                self.info(("Setting loglevel to %s", data['level']))
     def run_once(self):
         pass
     def run(self):
@@ -89,19 +103,25 @@ class AlgoObject(object):
                 socks = dict(self._poller.poll(self.timeout))
             except KeyboardInterrupt:
                 break
-            if self._control_socket in socks:
-                control = self.recv_control()
-                self.process_control(control)
-            if self._data_socket in socks:
-                data = self.recv_data()
-                self.process_data(data)
-            self.run_once()
+            try:
+                if self._control_socket in socks:
+                    control = self.recv_control()
+                    self.process_control(control)
+                if self._data_socket in socks:
+                    data = self.recv_data()
+                    self.process_data(data)
+                self.run_once()
+            except:
+                self.error("error processing control message")
+                self.error(traceback.format_exc())
             
 
 class Broker(AlgoObject):
     def __init__(self, name):
         AlgoObject.__init__(self, name, zmq.PULL)
         self._data_socket.bind(ports['data'][name])
+    def process_control(self, data):
+        AlgoObject.process_control(self, data)
 
 class Ticker(AlgoObject):
     def __init__(self, name):
@@ -113,6 +133,8 @@ class Ticker(AlgoObject):
         self.debug("running loop function")
         self.get_quotes()
         self.send_quotes()
+    def process_control(self, data):
+        AlgoObject.process_control(self, data)
     def send_quotes(self):
         self.debug("Sending quotes")
         self.send_data(self.quotes)

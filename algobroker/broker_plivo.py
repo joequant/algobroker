@@ -34,16 +34,13 @@ class BrokerPlivo(Broker):
             self.error("unknown item")
             self.error(pprint.pformat(data))
     def process_control(self, data):
-        self.info("received control message")
-        try:
-            if data['cmd'] == "auth":
-                self.auth_id = data['PLIVO_AUTH_ID']
-                self.auth_token = data['PLIVO_AUTH_TOKEN']
-                self.api = plivo.RestAPI(self.auth_id, self.auth_token)
-                self.src_number = data['src_number']
-                self.dst_number = data['dst_number']
-        except:
-            self.error("error processing control message")
+        algobroker.Broker.process_control(self, data)
+        if data.get('cmd', None) == "auth":
+            self.auth_id = data['PLIVO_AUTH_ID']
+            self.auth_token = data['PLIVO_AUTH_TOKEN']
+            self.api = plivo.RestAPI(self.auth_id, self.auth_token)
+            self.src_number = data['src_number']
+            self.dst_number = data['dst_number']
 
 if __name__ == "__main__":
     bp = BrokerPlivo()

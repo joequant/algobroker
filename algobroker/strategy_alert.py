@@ -5,13 +5,12 @@ import my_path
 import time
 import zmq
 import algobroker
-from algobroker import AlgoObject
 import msgpack
 import pprint
 
-class StrategyAlert(AlgoObject):
+class StrategyAlert(algobroker.AlgoObject):
     def __init__(self):
-        AlgoObject.__init__(self, "strategy_alert", zmq.SUB)
+        algobroker.AlgoObject.__init__(self, "strategy_alert", zmq.SUB)
         self._data_socket.connect(algobroker.ports['data']['ticker_yahoo'])
         self._data_socket.connect(algobroker.ports['data']['ticker_bitfutures'])
         self._data_socket.connect(algobroker.ports['data']['ticker_bravenewcoin'])
@@ -64,15 +63,15 @@ class StrategyAlert(AlgoObject):
                          'text' : 'hello and happy trading' }
         self.send_action(work_message)
     def process_control(self, data):
-        self.debug("getting control data")
+        algobroker.AlgoObject.process_control(self, data)
         if data['cmd'] == "set":
             if 'limits' in data:
                 self.debug("setting limits")
                 self.debug(pprint.pformat(data))
                 self.limits = data['limits']
     def process_data(self, data):
-        self.info("running alert loop")
-        self.info(data)
+        self.debug("running alert loop")
+        self.debug(data)
         for k, v in data.items():
             if 'last' in v:
                 self.quotes[k] = v['last']
