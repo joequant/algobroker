@@ -1,6 +1,4 @@
 include setup.py
-include control.py
-include bitmex.py
 include init.py.example
 include *.md
 include *.sh
