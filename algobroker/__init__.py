@@ -16,7 +16,8 @@ def logger(s : str):
     logger.addHandler(ch)
     return logger
 
-data_ports = {
+ports = {
+    "data" : {
     "dispatcher" : "tcp://127.0.0.1:5557",
     "broker_plivo" : "tcp://127.0.0.1:5558",
     "strategy_alert" : "tcp://127.0.0.1:5559",
@@ -24,9 +25,8 @@ data_ports = {
     "ticker_bitfutures" : "tcp://127.0.0.1:5561",
     "broker_bitmex" : "tcp://127.0.0.1:5562",
     "ticker_bravenewcoin" : "tcp://127.0.0.1:5563",
-    }
-
-control_ports = {
+    },
+    "control" : {
     "dispatcher" : "tcp://127.0.0.1:5577",
     "broker_plivo" : "tcp://127.0.0.1:5578",
     "strategy_alert" : "tcp://127.0.0.1:5579",
@@ -35,18 +35,14 @@ control_ports = {
     "broker_bitmex" : "tcp://127.0.0.1:5582",
     "ticker_bravenewcoin" : "tcp://127.0.0.1:5583"
     }
+    }
 
-def send_control(name, data):
+def send(name, data):
     context = zmq.Context()
-    socket = context.socket(zmq.PUSH)
-    socket.connect(control_ports[name])
-    socket.send(msgpack.packb(data))
-
-def send_data(name, data):
-    context = zmq.Context()
-    socket = context.socket(zmq.PUSH)
-    socket.connect(data_ports[name])
-    socket.send(msgpack.packb(data))
+    for i in data:
+        socket = context.socket(zmq.PUSH)
+        socket.connect(ports[name][i['dest']])
+        socket.send(msgpack.packb(i))
 
 class AlgoObject(object):
     def __init__(self, name : str, socket_type):
@@ -56,7 +52,7 @@ class AlgoObject(object):
         self._data_socket = self.socket(socket_type)
 
         self._control_socket = self.socket(zmq.PULL)
-        self._control_socket.bind(control_ports[name])
+        self._control_socket.bind(ports['control'][name])
         self._poller.register(self._data_socket,
                               zmq.POLLIN)
         self._poller.register(self._control_socket,
@@ -105,4 +101,26 @@ class AlgoObject(object):
 class Broker(AlgoObject):
     def __init__(self, name):
         AlgoObject.__init__(self, name, zmq.PULL)
-        self._data_socket.bind(data_ports[name])
+        self._data_socket.bind(ports['data'][name])
+
+class Ticker(AlgoObject):
+    def __init__(self, name):
+        AlgoObject.__init__(self, name, zmq.PUB)
+        self._data_socket.bind(ports['data'][name])
+        self.timeout = 30000
+        self.quotes = {}
+    def run_once(self):
+        self.debug("running loop function")
+        self.get_quotes()
+        self.send_quotes()
+    def send_quotes(self):
+        self.debug("Sending quotes")
+        self.send_data(self.quotes)
+    def test(self):
+        self.get_quotes()
+        socket = self._context.socket(zmq.PUSH)
+        socket.bind(algobroker.ports.dispatcher)
+        message = { 'action' : 'log',
+                    'item' : self.quotes }
+        self._logger.debug("Sending data")
+        socket.send(msgpack.packb(message))

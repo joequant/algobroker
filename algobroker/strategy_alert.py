@@ -12,9 +12,9 @@ import pprint
 class StrategyAlert(AlgoObject):
     def __init__(self):
         AlgoObject.__init__(self, "strategy_alert", zmq.SUB)
-        self._data_socket.connect(algobroker.data_ports['ticker_yahoo'])
-        self._data_socket.connect(algobroker.data_ports['ticker_bitfutures'])
-        self._data_socket.connect(algobroker.data_ports['ticker_bravenewcoin'])
+        self._data_socket.connect(algobroker.ports['data']['ticker_yahoo'])
+        self._data_socket.connect(algobroker.ports['data']['ticker_bitfutures'])
+        self._data_socket.connect(algobroker.ports['data']['ticker_bravenewcoin'])
         self._data_socket.setsockopt(zmq.SUBSCRIBE, b'')
         self.time_limits = {}
         self.state = {}
@@ -23,7 +23,7 @@ class StrategyAlert(AlgoObject):
         self.quotes = {}
         self.maintainence = 60 * 30
         self._action_socket = self.socket(zmq.PUSH)
-        self._action_socket.connect(algobroker.data_ports['dispatcher'])
+        self._action_socket.connect(algobroker.ports['data']['dispatcher'])
     def test_limits(self):
         for i in self.limits.keys():
             if i in self.limits and i in self.quotes:

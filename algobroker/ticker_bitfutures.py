@@ -4,24 +4,17 @@
 
 import my_path
 import time
-import zmq
 import algobroker
-from algobroker import AlgoObject
-import msgpack
 from cryptoexchange import bitfutures
 import pprint
 
-class BitfuturesTicker(AlgoObject):
+class BitfuturesTicker(algobroker.Ticker):
     def __init__(self):
-        AlgoObject.__init__(self, "ticker_bitfutures", zmq.PUB)
-        self._data_socket.bind(algobroker.data_ports["ticker_bitfutures"])
+        algobroker.Ticker.__init__(self, "ticker_bitfutures")
         self.exchanges = []
         self.time_limits = {}
         self.state = {}
         self.prev_state = {}
-        self.quotes = {}
-        self.sleep = 30
-        self.maintainence = 60 * 30
     def get_quotes(self):
         self.debug("getting quotes")
         data = bitfutures.get_data(self.exchanges)
@@ -46,9 +39,6 @@ class BitfuturesTicker(AlgoObject):
         except OSError:
             self.error("Network Error")
             time.sleep(60)
-    def send_quotes(self):
-        self.debug("Sending quotes")
-        self.send_data(self.quotes)
     def process_control(self, data):
         self.debug("received control message")
         if data['cmd'] == "set":
@@ -59,18 +49,6 @@ class BitfuturesTicker(AlgoObject):
         elif data['cmd'] == "test":
             self.debug("received test message")
             self.test()
-    def test(self):
-        self.get_quotes()
-        socket = self._context.socket(zmq.PUSH)
-        socket.connect(algobroker.data_ports['dispatcher'])
-        message = { 'action' : 'log',
-                    'item' : self.quotes }
-        self._logger.debug("Sending data")
-        socket.send(msgpack.packb(message))
-    def run_once(self):
-        self.debug("running loop function")
-        self.get_quotes()
-        self.send_quotes()
 
 if __name__ == "__main__":
     yq = BitfuturesTicker()

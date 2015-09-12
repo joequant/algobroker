@@ -15,7 +15,7 @@ class Dispatcher(Broker):
         Broker.__init__(self, "dispatcher")
         # send work
         self.sms_sender = self.socket(zmq.PUSH)
-        self.sms_sender.connect(algobroker.data_ports['broker_plivo'])
+        self.sms_sender.connect(algobroker.ports['data']['broker_plivo'])
     def process_data(self, data):
         if (data['action'] == "log"):
             self.warning(pprint.pformat(data))
