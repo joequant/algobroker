@@ -22,8 +22,10 @@ separate module are:
 INSTALL
 =======
 
-To install, set up a plivo account and move 
-algobroker/keys/plivo.py.example to algobroker/keys/plivo.py
+To install, set up a plivo account, run the servers via start-algo.sh
+and then send the servers commands via init.py
+
+Sample control files are in algobroker/test
 
 This installation does a simple scan of the quotes from yahoo and
 sends out an sms message if it hits certain limits.
