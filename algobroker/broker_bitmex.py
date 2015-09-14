@@ -19,22 +19,35 @@ class BrokerBitmex(Broker):
             self.error("keys not initialized")
             self.error(pprint.pformat(data))
             return
-        cmd = data.get('cmd', None)
+        cmd = data.get('cmd', "None")
+        self.debug("processing data command %s" % cmd)
         if cmd == 'order':
             self.api.place_order(data.get('quantity', None),
                                  data.get('symbol', None),
                                  data.get('price', None))
         elif cmd == 'cancel':
+            self.debug("cancelling order")
             self.api.cancel(data.get('orderID', None))
+            self.debug("orders cancelled")
         elif cmd == 'cancel_all':
-            orders = self.api()
+            self.debug("getting order list")
+            orders = self.api.open_orders()
+            self.debug("cancelling orders")
             for i in orders:
-                self.api.cancel(i)
+                self.api.cancel(i.get('orderID', None))
+            self.debug("orders cancelled")
+        elif cmd == "report_all":
+            orders = self.api.open_orders()
+            self.info(pprint.pformat(data))
         elif cmd == 'position':
             self.info(pprint.pformat(self.api.position()))
+        else:
+            raise RuntimeError("unknown data %s" % cmd)
     def process_control(self, data):
-        algobroker.Broker.process_control(self, data)
-        if data.get('cmd', None) == "auth":
+        if algobroker.Broker.process_control(self, data):
+            return True
+        cmd = data.get("cmd", "None")
+        if cmd == "auth":
             self.info("received auth message")
             base_url = data.get('base_url', None)
             login = data.get('login', None)
@@ -50,7 +63,15 @@ class BrokerBitmex(Broker):
                                      apiKey,
                                      apiSecret,
                                      orderIDPrefix)
-            self.api.authenticate()
+            try:
+                self.api.authenticate()
+                self.debug("get positions")
+                self.debug(pprint.pformat(self.api.position()))
+            except:
+                self.error("Authentication error")
+                self.api=None
+        else:
+            raise RuntimeError("unknown command %s" % cmd)
 
 if __name__ == "__main__":
     bp = BrokerBitmex()

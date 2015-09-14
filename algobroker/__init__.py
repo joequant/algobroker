@@ -5,6 +5,7 @@ import logging
 import zmq
 import msgpack
 import time
+import traceback
 
 
 def logger(s : str):
@@ -95,6 +96,7 @@ class AlgoObject(object):
             if data.get('level', None) in loglevels:
                 self._logger.setLevel(loglevels[data['level']])
                 self.info(("Setting loglevel to %s", data['level']))
+                return True
     def run_once(self):
         pass
     def run(self):
@@ -121,7 +123,7 @@ class Broker(AlgoObject):
         AlgoObject.__init__(self, name, zmq.PULL)
         self._data_socket.bind(ports['data'][name])
     def process_control(self, data):
-        AlgoObject.process_control(self, data)
+        return AlgoObject.process_control(self, data)
 
 class Ticker(AlgoObject):
     def __init__(self, name):
@@ -134,7 +136,7 @@ class Ticker(AlgoObject):
         self.get_quotes()
         self.send_quotes()
     def process_control(self, data):
-        AlgoObject.process_control(self, data)
+        return AlgoObject.process_control(self, data)
     def send_quotes(self):
         self.debug("Sending quotes")
         self.send_data(self.quotes)
