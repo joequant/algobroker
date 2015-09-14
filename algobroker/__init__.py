@@ -55,6 +55,8 @@ def send(name, data):
         socket.connect(ports[name][i['dest']])
         socket.send(msgpack.packb(i))
 
+
+
 class AlgoObject(object):
     def __init__(self, name : str, socket_type):
         self._logger = logger(name)
@@ -72,8 +74,6 @@ class AlgoObject(object):
         self.timeout = None
     def socket(self, socket_type):
         return self._context.socket(socket_type)
-    def send_data(self, message):
-        self._data_socket.send(msgpack.packb(message))
     def recv_data(self):
         return msgpack.unpackb(self._data_socket.recv(),
                                encoding='utf-8')
@@ -116,7 +116,17 @@ class AlgoObject(object):
             except:
                 self.error("error processing control message")
                 self.error(traceback.format_exc())
-            
+
+class Strategy(AlgoObject):
+    def __init__(self, name, tickers):
+        AlgoObject.__init__(self, name, zmq.SUB)
+        for i in tickers:
+            self._data_socket.connect(ports['data'][i])
+        self._data_socket.setsockopt(zmq.SUBSCRIBE, b'')
+        self._action_socket = self.socket(zmq.PUSH)
+        self._action_socket.connect(ports['data']['dispatcher'])
+    def send_action(self, message):
+        self._action_socket.send(msgpack.packb(message))
 
 class Broker(AlgoObject):
     def __init__(self, name):
@@ -140,11 +150,13 @@ class Ticker(AlgoObject):
     def send_quotes(self):
         self.debug("Sending quotes")
         self.send_data(self.quotes)
+    def send_data(self, message):
+        self._data_socket.send(msgpack.packb(message))
     def test(self):
         self.get_quotes()
         socket = self._context.socket(zmq.PUSH)
-        socket.bind(algobroker.ports.dispatcher)
-        message = { 'action' : 'log',
+        socket.bind(ports['data']['dispatcher'])
+        message = { 'cmd' : 'log',
                     'item' : self.quotes }
         self._logger.debug("Sending data")
         socket.send(msgpack.packb(message))

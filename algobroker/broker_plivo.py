@@ -19,11 +19,11 @@ class BrokerPlivo(Broker):
            self.src_number == None or \
            self.dst_number == None:
             self.error("keys not initialized")
-        if (data['action'] == "alert" and \
+        if (data['cmd'] == "alert" and \
             data['type'] == 'sms'):
             params = {
                 'src' : self.src_number,
-                'dst' : self.dst_number[data['dst']],
+                'dst' : self.dst_number[data['to']],
                 'text' : data['text'],
                 'method' : 'POST'
                 }

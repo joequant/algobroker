@@ -8,21 +8,18 @@ import algobroker
 import msgpack
 import pprint
 
-class StrategyAlert(algobroker.AlgoObject):
+class StrategyAlert(algobroker.Strategy):
     def __init__(self):
-        algobroker.AlgoObject.__init__(self, "strategy_alert", zmq.SUB)
-        self._data_socket.connect(algobroker.ports['data']['ticker_yahoo'])
-        self._data_socket.connect(algobroker.ports['data']['ticker_bitfutures'])
-        self._data_socket.connect(algobroker.ports['data']['ticker_bravenewcoin'])
-        self._data_socket.setsockopt(zmq.SUBSCRIBE, b'')
+        algobroker.Strategy.__init__(self, "strategy_alert",
+                                     ['ticker_yahoo',
+                                      'ticker_bitfutures',
+                                      'ticker_bravenewcoin'])
         self.time_limits = {}
         self.state = {}
         self.prev_state = {}
         self.limits = {}
         self.quotes = {}
         self.maintainence = 60 * 30
-        self._action_socket = self.socket(zmq.PUSH)
-        self._action_socket.connect(algobroker.ports['data']['dispatcher'])
     def test_limits(self):
         for i in self.limits.keys():
             if i in self.limits and i in self.quotes:
@@ -33,8 +30,6 @@ class StrategyAlert(algobroker.AlgoObject):
                     self.state[i] = "high"
                 else:
                     self.state[i] = "ok"
-    def send_action(self, message):
-        self._action_socket.send(msgpack.packb(message))
     def send_notices(self):
         msg = ""
         for k, v in self.state.items():
@@ -47,23 +42,23 @@ class StrategyAlert(algobroker.AlgoObject):
                     msg += "%s - %f - %s | " % (k, self.quotes[k],
                                                 v)
         if msg != "":
-            self.send_action({'action' : 'alert',
+            self.send_action({'cmd' : 'alert',
                               'type' : 'sms',
-                              'dst' : 'trader1',
+                              'to' : 'trader1',
                               'text' : msg})
         for k, v in self.state.items():
             self.prev_state[k] = v
     def test(self):
-        work_message = { 'action' : 'log',
+        work_message = { 'cmd' : 'log',
                          'item' : 'hello' }
         self.send_action(work_message)
-        work_message = { 'action' : 'alert',
+        work_message = { 'cmd' : 'alert',
                          'type' : 'sms',
-                         'dst'  : 'trader1',
+                         'to'  : 'trader1',
                          'text' : 'hello and happy trading' }
         self.send_action(work_message)
     def process_control(self, data):
-        algobroker.AlgoObject.process_control(self, data)
+        algobroker.Strategy.process_control(self, data)
         if data['cmd'] == "set":
             if 'limits' in data:
                 self.debug("setting limits")
