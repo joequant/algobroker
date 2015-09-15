@@ -36,6 +36,7 @@ ports = {
     "ticker_bitfutures" : "tcp://127.0.0.1:5561",
     "broker_bitmex" : "tcp://127.0.0.1:5562",
     "ticker_bravenewcoin" : "tcp://127.0.0.1:5563",
+    "strategy_xbt_close" : "tcp://127.0.0.1:5564",
     },
     "control" : {
     "dispatcher" : "tcp://127.0.0.1:5577",
@@ -44,7 +45,9 @@ ports = {
     "ticker_yahoo" : "tcp://127.0.0.1:5580",
     "ticker_bitfutures" : "tcp://127.0.0.1:5581",
     "broker_bitmex" : "tcp://127.0.0.1:5582",
-    "ticker_bravenewcoin" : "tcp://127.0.0.1:5583"
+    "ticker_bravenewcoin" : "tcp://127.0.0.1:5583",
+    "strategy_xbt_close" : "tcp://127.0.0.1:5584",
+    
     }
     }
 
@@ -88,13 +91,15 @@ class AlgoObject(object):
         self._logger.error(s)
     def warning(self, s):
         self._logger.warning(s)
+    def set_logger_level(self, level):
+        self._logger.setLevel(loglevels[level])
     def process_data(self, data):
         raise NotImplementedError
     def process_control(self, data):
         self.debug("received control message")
         if data.get('cmd', None) == 'loglevel':
             if data.get('level', None) in loglevels:
-                self._logger.setLevel(loglevels[data['level']])
+                self.set_logger_level(loglevels[data['level']])
                 self.info(("Setting loglevel to %s", data['level']))
                 return True
     def run_once(self):
@@ -127,6 +132,10 @@ class Strategy(AlgoObject):
         self._action_socket.connect(ports['data']['dispatcher'])
     def send_action(self, message):
         self._action_socket.send(msgpack.packb(message))
+    def send_control(self, to, message):
+        socket = self._context.socket(zmq.PUSH)
+        socket.connect(ports['control'][to])
+        socket.send(msgpack.packb(message))
 
 class Broker(AlgoObject):
     def __init__(self, name):
