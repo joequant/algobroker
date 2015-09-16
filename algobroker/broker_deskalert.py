@@ -6,8 +6,11 @@ import my_path
 import pprint
 import algobroker
 from algobroker import Broker
-import pyglet
 import os
+import subprocess
+
+def is_exe(fpath):
+    return os.path.exists(fpath) and os.access(fpath, os.X_OK)
 
 class BrokerDeskAlert(Broker):
     def __init__(self):
@@ -15,10 +18,16 @@ class BrokerDeskAlert(Broker):
         my_dir = os.path.dirname(os.path.realpath(__file__))
         self.media_dir = os.path.join(my_dir, "media")
         self.alerts = ["low", "high"]
+        self.repeat = 5
+        self.player = "/bin/play"
     def alert(self, alert):
-        sound = pyglet.media.load(os.path.join(self.media_dir,
-                                               alert + ".ogg"))
-        sound.play()
+        if not is_exe("/bin/play"):
+            print("sox not installed")
+        else:
+            for i in range(self.repeat):
+                subprocess.call(["/bin/play", "-q",
+                                 os.path.join(self.media_dir,
+                                              alert + ".ogg")])
     def process_data(self, data):
         if (data['cmd'] == "alert" and \
             data['type'] == 'desk'):
