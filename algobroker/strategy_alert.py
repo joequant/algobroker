@@ -38,7 +38,7 @@ class StrategyAlert(algobroker.Strategy):
             else:
                 prev_state = "none"
             if v == "high" or v == "low":
-                if prev_state == "ok" or prev_state == "none":
+                if prev_state != "none" and prev_state != v:
                     msg += "%s - %f - %s | " % (k, self.quotes[k],
                                                 v)
         if msg != "":

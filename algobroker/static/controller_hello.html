@@ -5,21 +5,31 @@
   <body>
 
     <div ng-app="myApp" ng-controller="customersCtrl">
-
-      <ul>
-	<li ng-repeat="x in names">
-	  {{ x.Name + ', ' + x.Country }}
-	</li>
-      </ul>
-
+    <ul>
+    <li ng-repeat="x in names">
+    {{ x.Name + ', ' + x.Country }}
+    </li>
+    </ul>
+    <br>{{log}}
+    <br>
+    <button ng-click="loadData()">Refresh</button><br>
+    <button ng-click="deskAlert()">Alert</button><br>
     </div>
 
     <script>
-      var app = angular.module('myApp', []);
-      app.controller('customersCtrl', function($scope, $http) {
-      $http.get("http://localhost:5000/test-data")
-        .success(function (response) {$scope.names =
-      response.records;});
+    var app = angular.module('myApp', []);
+     app.controller('customersCtrl', function($scope, $http) {
+	 $scope.loadData = function() {
+	     $http.get("/test-data").success(function (response) {
+		 $scope.names =
+		     response.records;
+	     });
+	 };
+	 $scope.deskAlert = function() {
+	     $http.get("/desk-alert").success(function (response) {
+		 $scope.log = response;
+	     });
+	 };
       });
     </script>
 

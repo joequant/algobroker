@@ -18,14 +18,14 @@ def testdata():
                           {"Name" : "foo1",
                            "Country" : "bar1"}]})
 
-@app.route("/deskalert")
+@app.route("/desk-alert")
 def deskalert():
     algobroker.send("data",
                     [{"dest" : "broker_desk_alert",
                      "cmd" : "alert",
                      "type" : "desk",
                      "alert" : "high"}])
-    return ""
+    return "alert"
 
 if __name__ == "__main__":
     app.run(debug=True)
