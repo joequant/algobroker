@@ -38,6 +38,7 @@ ports = {
     "ticker_bravenewcoin" : "tcp://127.0.0.1:5563",
     "strategy_xbt_close" : "tcp://127.0.0.1:5564",
     "broker_desk_alert" : "tcp://127.0.0.1:5565",
+    "broker_twilio" : "tcp://127.0.0.1:5566",
     },
     "control" : {
     "dispatcher" : "tcp://127.0.0.1:5577",
@@ -49,6 +50,7 @@ ports = {
     "ticker_bravenewcoin" : "tcp://127.0.0.1:5583",
     "strategy_xbt_close" : "tcp://127.0.0.1:5584",
     "broker_desk_alert" : "tcp://127.0.0.1:5585",
+    "broker_twilio" : "tcp://127.0.0.1:5586",
     }
     }
 

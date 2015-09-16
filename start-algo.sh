@@ -2,6 +2,7 @@
 python3 algobroker/broker_plivo.py &
 python3 algobroker/broker_bitmex.py &
 python3 algobroker/broker_desk_alert.py &
+python3 algobroker/broker_twilio.py &
 python3 algobroker/dispatcher.py &
 python3 algobroker/strategy_alert.py &
 python3 algobroker/strategy_xbt_close.py &
