@@ -16,7 +16,7 @@ class BrokerDeskAlert(Broker):
     def __init__(self):
         Broker.__init__(self, "broker_desk_alert")
         my_dir = os.path.dirname(os.path.realpath(__file__))
-        self.media_dir = os.path.join(my_dir, "media")
+        self.media_dir = os.path.join(my_dir, "static")
         self.alerts = ["low", "high"]
         self.repeat = 5
         self.player = "/bin/play"
@@ -38,4 +38,5 @@ class BrokerDeskAlert(Broker):
 
 if __name__ == "__main__":
     bp = BrokerDeskAlert()
-    bp.alert("high")
+    bp.run()
+
