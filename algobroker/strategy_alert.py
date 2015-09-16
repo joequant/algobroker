@@ -3,9 +3,7 @@
 # Released under the Simplified BSD License
 import my_path
 import time
-import zmq
 import algobroker
-import msgpack
 import pprint
 
 class StrategyAlert(algobroker.Strategy):

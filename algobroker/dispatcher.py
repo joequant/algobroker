@@ -4,7 +4,7 @@
 
 import my_path
 import time
-import zmq
+import zmq.green as zmq
 import pprint
 import algobroker
 import msgpack

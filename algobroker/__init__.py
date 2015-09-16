@@ -2,7 +2,7 @@
 # Released under the Simplified BSD License
 
 import logging
-import zmq
+import zmq.green as zmq
 import msgpack
 import time
 import traceback
