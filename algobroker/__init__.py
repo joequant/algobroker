@@ -37,6 +37,7 @@ ports = {
     "broker_bitmex" : "tcp://127.0.0.1:5562",
     "ticker_bravenewcoin" : "tcp://127.0.0.1:5563",
     "strategy_xbt_close" : "tcp://127.0.0.1:5564",
+    "broker_desk_alert" : "tcp://127.0.0.1:5565",
     },
     "control" : {
     "dispatcher" : "tcp://127.0.0.1:5577",
@@ -47,7 +48,7 @@ ports = {
     "broker_bitmex" : "tcp://127.0.0.1:5582",
     "ticker_bravenewcoin" : "tcp://127.0.0.1:5583",
     "strategy_xbt_close" : "tcp://127.0.0.1:5584",
-    
+    "broker_desk_alert" : "tcp://127.0.0.1:5585",
     }
     }
 
