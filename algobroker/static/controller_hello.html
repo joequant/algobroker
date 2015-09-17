@@ -14,6 +14,8 @@
     <br>
     <button ng-click="loadData()">Refresh</button><br>
     <button ng-click="deskAlert()">Alert</button><br>
+    <p>
+    {{result}}
     </div>
 
     <script>
@@ -29,6 +31,12 @@
 	     $http.get("/desk-alert").success(function (response) {
 		 $scope.log = response;
 	     });
+	 };
+	 var source = new EventSource('/subscribe');
+	 source.onmessage = function (event) {
+	     $scope.result = JSON.parse(event.data);
+	     $scope.$apply();
+	     console.log($scope.result);
 	 };
       });
     </script>
