@@ -5,16 +5,8 @@ from flask import Flask, send_from_directory, Response
 import flask
 import algobroker
 from io import StringIO
+from queue import Queue
 import sys
-import gevent
-from gevent.wsgi import WSGIServer
-from gevent.queue import Queue
-
-import time
-import gevent
-from gevent.wsgi import WSGIServer
-from gevent.queue import Queue
-
 import time
 
 app = Flask(__name__, static_url_path='')
@@ -63,12 +55,9 @@ def debug():
 
 @app.route("/publish")
 def publish():
-    #Dummy data - pick up from request for real data
-    def notify():  
-        msg = str(time.time())
-        for sub in subscriptions[:]:
-            sub.put(msg)
-    gevent.spawn(notify)
+    msg = str(time.time())
+    for sub in subscriptions[:]:
+        sub.put(msg)
     return "OK"
 
 @app.route("/subscribe")
@@ -83,11 +72,12 @@ def subscribe():
                 yield ev.encode()
         except GeneratorExit: # Or maybe use flask signals
             subscriptions.remove(q)
-    return Response(gen(), mimetype="text/event-stream")
+    return Response(gen(), mimetype="text/event-stream",
+                    headers={"cache-control":"True",
+                             "keep-alive":"True"})
 
 if __name__ == "__main__":
     app.debug = True
-    server = WSGIServer(("", 5000), app)
-    server.serve_forever()
+    app.run(threaded=True)
     # Then visit http://localhost:5000 to subscribe
     # and send messages by visiting http://localhost:5000/publish
