@@ -31,7 +31,7 @@ class ServerSentEvent(object):
 
 @app.route("/")
 def hello():
-    return app.send_static_file('controller_hello.html')
+    return app.send_static_file('broker_web.html')
 
 @app.route("/test-data")
 def testdata():
