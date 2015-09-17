@@ -48,7 +48,7 @@ class StrategyXbtClose(algobroker.Strategy):
             self.xbt_initial_price * (1 - self.range) or
             self.xbt_current_price > \
             self.xbt_initial_price * (1 + self.range)):
-            send_cancel()
+            self.send_cancel()
 
 if __name__ == "__main__":
     qm = StrategyXbtClose()
