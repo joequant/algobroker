@@ -25,6 +25,7 @@ setup(
                         'yahoo_finance',
                         'requests',
                         'ib-api',
+                        'gevent',
                         'cryptoexchange >= 0.0.6'],
     scripts = ['start-algo.sh', 'stop-algo.sh'],
     use_2to3 = True

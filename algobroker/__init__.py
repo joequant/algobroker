@@ -39,6 +39,7 @@ ports = {
     "strategy_xbt_close" : "tcp://127.0.0.1:5564",
     "broker_desk_alert" : "tcp://127.0.0.1:5565",
     "broker_twilio" : "tcp://127.0.0.1:5566",
+    "broker_web" : "tcp://127.0.0.1:5567",
     },
     "control" : {
     "dispatcher" : "tcp://127.0.0.1:5577",
@@ -51,6 +52,7 @@ ports = {
     "strategy_xbt_close" : "tcp://127.0.0.1:5584",
     "broker_desk_alert" : "tcp://127.0.0.1:5585",
     "broker_twilio" : "tcp://127.0.0.1:5586",
+    "broker_web" : "tcp://127.0.0.1:5587",
     }
     }
 

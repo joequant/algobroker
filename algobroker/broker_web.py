@@ -5,11 +5,20 @@ from flask import Flask, send_from_directory, Response
 import flask
 import algobroker
 from io import StringIO
-from queue import Queue
+from gevent.queue import Queue
 import sys
 import time
+from gevent.wsgi import WSGIServer
+import gevent
 
 app = Flask(__name__, static_url_path='')
+
+class BrokerWeb(algobroker.Broker):
+    def __init__(self):
+        algobroker.Broker.__init__(self, "broker_web")
+    def process_data(self, data):
+        self.info(data)
+
 subscriptions = []
 # SSE "protocol" is described here: http://mzl.la/UPFyxY
 class ServerSentEvent(object):
@@ -72,12 +81,14 @@ def subscribe():
                 yield ev.encode()
         except GeneratorExit: # Or maybe use flask signals
             subscriptions.remove(q)
-    return Response(gen(), mimetype="text/event-stream",
-                    headers={"cache-control":"True",
-                             "keep-alive":"True"})
+    return Response(gen(), mimetype="text/event-stream")
+
+
 
 if __name__ == "__main__":
-    app.debug = True
-    app.run(threaded=True)
+    bw = BrokerWeb()
+    g = gevent.Greenlet.spawn(bw.run)
+    http_server = WSGIServer(('', 5000), app)
+    http_server.serve_forever()
     # Then visit http://localhost:5000 to subscribe
     # and send messages by visiting http://localhost:5000/publish
