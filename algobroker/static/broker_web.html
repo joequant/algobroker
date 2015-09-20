@@ -4,7 +4,8 @@
 	  "http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
   <body>
 
-    <div ng-app="myApp" ng-controller="customersCtrl">
+    <div ng-app="myApp">
+    <div ng-controller="customersCtrl">
     <ul>
     <li ng-repeat="x in names">
     {{ x.Name + ', ' + x.Country }}
@@ -15,7 +16,13 @@
     <button ng-click="loadData()">Refresh</button><br>
     <button ng-click="deskAlert()">Alert</button><br>
     <p>
-    {{result}}
+      {{result}}
+    </div>
+    <div ng-controller="injectCtrl">
+      <textarea ng-model="textinput"></textarea>
+      <button ng-click="injectControl()">Control</button><br>
+      <button ng-click="injectData()">Data</button><br>
+    </div>
     </div>
 
     <script>
@@ -37,6 +44,22 @@
 	     $scope.result = JSON.parse(event.data);
 	     $scope.$apply();
 	     console.log($scope.result);
+	 };
+      });
+     app.controller('injectCtrl', function($scope, $http) {
+	 $scope.injectData = function() {
+    $http.post("/inject-data",
+	       JSON.parse($scope.textinput),
+	       {"headers": {"context-type" : "application/json"}}).success(function (response) {
+		 $scope.result = "done";
+	     });
+	 };
+	 $scope.injectControl = function() {
+	     $http.post("/inject-control",
+			JSON.parse($scope.textinput),
+			{"headers": {"context-type" : "application/json"}}).success(function (response) {			
+		 $scope.result = "done";
+	     });
 	 };
       });
     </script>

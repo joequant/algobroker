@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # http://flask.pocoo.org/snippets/116/
 
-from flask import Flask, send_from_directory, Response
+from flask import Flask, send_from_directory, Response, request
 import flask
 import algobroker
 from io import StringIO
@@ -49,6 +49,18 @@ def testdata():
                           {"Name" : "foo1",
                            "Country" : "bar1"}]})
 
+@app.route("/inject-control", methods=['GET', 'POST'])
+def injectControl():
+    algobroker.send("control",
+                    request.json)
+    return "OK"
+
+@app.route("/inject-data", methods=['GET', 'POST'])
+def injectData():
+    algobroker.send("data",
+                    request.json)
+    return "OK"
+
 @app.route("/desk-alert")
 def deskalert():
     algobroker.send("data",
@@ -88,6 +100,7 @@ def subscribe():
 if __name__ == "__main__":
     bw = BrokerWeb()
     g = gevent.Greenlet.spawn(bw.run)
+    app.debug=True
     http_server = WSGIServer(('', 5000), app)
     http_server.serve_forever()
     # Then visit http://localhost:5000 to subscribe
