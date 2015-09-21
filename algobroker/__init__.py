@@ -97,7 +97,7 @@ class AlgoObject(object):
     def warning(self, s):
         self._logger.warning(s)
     def set_logger_level(self, level):
-        self._logger.setLevel(loglevels[level])
+        self._logger.setLevel(level)
     def process_data(self, data):
         raise NotImplementedError
     def process_control(self, data):
