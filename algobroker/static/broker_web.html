@@ -11,7 +11,6 @@
   </style>
   </head>
   <body>
-
     <div ng-app="myApp">
     <div ng-controller="customersCtrl">
     <ul>
@@ -27,13 +26,42 @@
     </div>
     <div ng-controller="injectCtrl">
       <button ng-click="injectControl()">Control</button><button ng-click="injectData()">Data</button><br>
+      <input type="file"
+             on-read-file="displayFileContents(contents)" /><br/>
       <textarea id="inject" ng-model="textinput"></textarea><br>
     </div>
     </div>
 
     <script>
     var app = angular.module('myApp', []);
-     app.controller('customersCtrl', function($scope, $http) {
+    app.directive('onReadFile', function ($parse) {
+	return {
+	    restrict: 'A',
+	    scope: false,
+	    link: function(scope, element, attrs) {
+		element.bind('change', function(e) {
+		    var onFileReadFn = $parse(attrs.onReadFile);
+		    var reader = new FileReader();
+		    reader.onload = function() {
+			var fileContents = reader.result;
+			// invoke parsed function on scope
+			// special syntax for passing in data
+			// to named parameters
+			// in the parsed function
+			// we are providing a value for the property 'contents'
+			// in the scope we pass in to the function
+			scope.$apply(function() {
+			    onFileReadFn(scope, {
+				'contents' : fileContents
+			    });
+			});
+		    };
+		    reader.readAsText(element[0].files[0]);
+		});
+	    }
+	};
+    });
+    app.controller('customersCtrl', function($scope, $http) {
 	 $scope.loadData = function() {
 	     $http.get("/test-data").success(function (response) {
 		 $scope.names =
@@ -52,23 +80,25 @@
 	     console.log($scope.result);
 	 };
       });
-     app.controller('injectCtrl', function($scope, $http) {
-	 $scope.injectData = function() {
-    $http.post("/inject-data",
-	       JSON.parse($scope.textinput),
-	       {"headers": {"context-type" : "application/json"}}).success(function (response) {
-		 $scope.result = "done";
-	     });
-	 };
-	 $scope.injectControl = function() {
-	     $http.post("/inject-control",
-			JSON.parse($scope.textinput),
-			{"headers": {"context-type" : "application/json"}}).success(function (response) {			
-		 $scope.result = "done";
-	     });
-	 };
-      });
+app.controller('injectCtrl', function($scope, $http) {
+    $scope.displayFileContents = function(contents) {
+	$scope.textinput = contents;
+    };
+    $scope.injectData = function() {
+	$http.post("/inject-data",
+		   JSON.parse($scope.textinput),
+		   {"headers": {"context-type" : "application/json"}}).success(function (response) {
+		       $scope.result = "done";
+		   });
+    };
+    $scope.injectControl = function() {
+	$http.post("/inject-control",
+		   JSON.parse($scope.textinput),
+		   {"headers": {"context-type" : "application/json"}}).success(function (response) {
+		       $scope.result = "done";
+		   });
+    };
+    });
     </script>
-
   </body>
 </html>

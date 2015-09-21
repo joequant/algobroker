@@ -31,9 +31,9 @@ class BitfuturesTicker(algobroker.Ticker):
                                  j['contract']):
                         tag = k[4] + "." + k[0].replace("-", "") + "." + i
                         self.quotes[tag] = {
-                            "ask" : float(k[1]),
-                            "bid" : float(k[2]),
-                            "last" : float(k[3])
+                            "ask" : float(k[1]) if k[1] != None else None,
+                            "bid" : float(k[2]) if k[2] != None else None,
+                            "last" : float(k[3]) if k[3] != None else None,
                             }
             self.debug(self.quotes)
         except OSError:
