@@ -8,7 +8,7 @@ from setuptools import (
 
 setup(
     name="algobroker",
-    version = "0.0.8",
+    version = "0.0.9",
     author="Joseph C Wang",
     author_email='joequant@gmail.com',
     url="https://github.com/joequant/algobroker",
@@ -26,6 +26,7 @@ setup(
                         'requests',
                         'ib-api',
                         'gevent',
+                        'simplejson',
                         'cryptoexchange >= 0.0.6'],
     scripts = ['start-algo.sh', 'stop-algo.sh'],
     use_2to3 = True
