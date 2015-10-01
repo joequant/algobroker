@@ -36,7 +36,7 @@ class StrategyAlert(algobroker.Strategy):
             else:
                 prev_state = "none"
             if v == "high" or v == "low":
-                if prev_state != "none" and prev_state != v:
+                if prev_state != v:
                     msg += "%s - %f - %s | " % (k, self.quotes[k],
                                                 v)
         if msg != "":
@@ -67,7 +67,7 @@ class StrategyAlert(algobroker.Strategy):
         self.debug(data)
         for k, v in data.items():
             if 'last' in v:
-                self.quotes[k] = v['last']
+                self.quotes[k] = float(v['last'])
         self.test_limits()
         self.send_notices()
 
