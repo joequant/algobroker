@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # http://flask.pocoo.org/snippets/116/
 
+import zmq.green as zmq
 from flask import Flask, send_from_directory, Response, request
 import flask
 import algobroker
