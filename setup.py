@@ -8,7 +8,7 @@ from setuptools import (
 
 setup(
     name="algobroker",
-    version = "0.0.9",
+    version = "0.0.10",
     author="Joseph C Wang",
     author_email='joequant@gmail.com',
     url="https://github.com/joequant/algobroker",
@@ -18,7 +18,8 @@ setup(
     packages=['algobroker'],
     install_requires = ['pyzmq',
                         'msgpack-python',
-                        'plivo',
+                        'plivo >= 0.11.0',
+                        'twilio',
                         'numpy',
                         'scipy',
                         'python-dateutil',
