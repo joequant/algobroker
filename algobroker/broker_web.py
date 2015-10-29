@@ -13,12 +13,18 @@ from gevent.wsgi import WSGIServer
 import gevent
 
 app = Flask(__name__, static_url_path='')
-
 class BrokerWeb(algobroker.Broker):
     def __init__(self):
-        algobroker.Broker.__init__(self, "broker_web")
+        algobroker.Broker.__init__(self, "broker_web", zmq_ref=zmq)
     def process_data(self, data):
         self.info(data)
+
+if __name__ == "__main__":
+    bw = BrokerWeb()
+    g = gevent.Greenlet.spawn(bw.run)
+    # Then visit http://localhost:5000 to subscribe
+    # and send messages by visiting http://localhost:5000/publish
+
 
 subscriptions = []
 # SSE "protocol" is described here: http://mzl.la/UPFyxY
@@ -52,23 +58,23 @@ def testdata():
 
 @app.route("/inject-control", methods=['GET', 'POST'])
 def injectControl():
-    algobroker.send("control",
-                    request.json)
+    bw.send_data("control",
+            request.json)
     return "OK"
 
 @app.route("/inject-data", methods=['GET', 'POST'])
 def injectData():
-    algobroker.send("data",
+    bw.send_data("data",
                     request.json)
     return "OK"
 
 @app.route("/desk-alert")
 def deskalert():
-    algobroker.send("data",
-                    [{"dest" : "broker_desk_alert",
-                     "cmd" : "alert",
-                     "type" : "desk",
-                     "alert" : "high"}])
+    bw.send_data("data",
+            [{"dest" : "broker_desk_alert",
+              "cmd" : "alert",
+              "type" : "desk",
+              "alert" : "high"}])
     return "alert"
 
 @app.route("/debug")
@@ -97,12 +103,7 @@ def subscribe():
     return Response(gen(), mimetype="text/event-stream")
 
 
-
 if __name__ == "__main__":
-    bw = BrokerWeb()
-    g = gevent.Greenlet.spawn(bw.run)
     app.debug=True
     http_server = WSGIServer(('', 5000), app)
     http_server.serve_forever()
-    # Then visit http://localhost:5000 to subscribe
-    # and send messages by visiting http://localhost:5000/publish

@@ -7,7 +7,6 @@ import msgpack
 import time
 import traceback
 
-
 def logger(s : str):
     logger = logging.getLogger(s)
     logger.setLevel(logging.INFO)
@@ -66,10 +65,14 @@ def send(name, data):
 
 
 class AlgoObject(object):
-    def __init__(self, name : str, socket_type):
+    def __init__(self, name : str, socket_type, zmq_ref=None):
+        if zmq_ref == None:
+            self._zmq = zmq
+        else:
+            self._zmq = zmq_ref
         self._logger = logger(name)
-        self._context = zmq.Context()
-        self._poller = zmq.Poller()
+        self._context = self._zmq.Context()
+        self._poller = self._zmq.Poller()
         self._data_socket = self.socket(socket_type)
 
         self._control_socket = self.socket(zmq.PULL)
@@ -82,6 +85,11 @@ class AlgoObject(object):
         self.timeout = None
     def socket(self, socket_type):
         return self._context.socket(socket_type)
+    def send_data(self, name, data):
+        for i in data:
+            socket = self._context.socket(zmq.PUSH)
+            socket.connect(ports[name][i['dest']])
+            socket.send(msgpack.packb(i))
     def recv_data(self):
         return msgpack.unpackb(self._data_socket.recv(),
                                encoding='utf-8')
@@ -110,6 +118,7 @@ class AlgoObject(object):
     def run_once(self):
         pass
     def run(self):
+        print("running")
         while True:
             try:
                 socks = dict(self._poller.poll(self.timeout))
@@ -128,8 +137,8 @@ class AlgoObject(object):
                 self.error(traceback.format_exc())
 
 class Strategy(AlgoObject):
-    def __init__(self, name, tickers):
-        AlgoObject.__init__(self, name, zmq.SUB)
+    def __init__(self, name, tickers, **kwargs):
+        AlgoObject.__init__(self, name, zmq.SUB, **kwargs)
         for i in tickers:
             self._data_socket.connect(ports['data'][i])
         self._data_socket.setsockopt(zmq.SUBSCRIBE, b'')
@@ -143,15 +152,15 @@ class Strategy(AlgoObject):
         socket.send(msgpack.packb(message))
 
 class Broker(AlgoObject):
-    def __init__(self, name):
-        AlgoObject.__init__(self, name, zmq.PULL)
+    def __init__(self, name, **kwargs):
+        AlgoObject.__init__(self, name, zmq.PULL, **kwargs)
         self._data_socket.bind(ports['data'][name])
     def process_control(self, data):
         return AlgoObject.process_control(self, data)
 
 class Ticker(AlgoObject):
-    def __init__(self, name):
-        AlgoObject.__init__(self, name, zmq.PUB)
+    def __init__(self, name, **kwargs):
+        AlgoObject.__init__(self, name, zmq.PUB, **kwargs)
         self._data_socket.bind(ports['data'][name])
         self.timeout = 30000
         self.quotes = {}
