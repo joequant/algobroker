@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-  <script src=
+    <script src=
 	  "http://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.min.js"></script>
   <script src=
 	  "http://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular-touch.min.js"></script>
@@ -14,6 +14,7 @@
 	  "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
   <script src="static/ui-bootstrap-tpls-0.14.3.min.js"></script>
   <script src="static/ui-grid.min.js"></script>
+  <script src="static/broker_web.js"></script>
   <link rel="stylesheet" href="static/ui-grid.min.css"/>
   <style type="text/css">
     #inject {
@@ -23,6 +24,10 @@
     .grid {
     width: 500px;
     height: 250px;
+    }
+    #textarea1 {
+    width: 100%;
+    height: 500px;
     }
   </style>
   <!-- Latest compiled and minified CSS -->
@@ -43,119 +48,44 @@
   </head>
   <body>
     <div ng-app="myApp">
-    <div ng-controller="TabsDemoCtrl">
-      <uib-tabset>
-	<uib-tab heading="Scratchpad">
-	  <div ng-controller="customersCtrl">
-	    <ul>
-	      <li ng-repeat="x in names">
-		{{ x.Name + ', ' + x.Country }}
-	      </li>
-	    </ul>
-	    <br>{{log}}
+      <div ng-controller="TabsDemoCtrl">
+	<uib-tabset>
+	  <uib-tab heading="Scratchpad">
+	    <div ng-controller="customersCtrl">
+	      <ul>
+		<li ng-repeat="x in names">
+		  {{ x.Name + ', ' + x.Country }}
+		</li>
+	      </ul>
+	      <br>
+	      <br>
+	      <button ng-click="loadData()">Refresh</button>
+	      <button ng-click="deskAlert()">Alert</button><br>
+	    </div>
+	  </uib-tab>
+	  <uib-tab heading="Injector">
+	    <div ng-controller="injectCtrl">
+	      <button ng-click="injectControl()">Control</button>
+	      <button ng-click="injectData()">Data</button><br>
+	      <input type="file"
+		     on-read-file="displayFileContents(contents)" /><br/>
+	      <textarea id="inject" ng-model="textinput"></textarea><br>
+	    </div>
+	  </uib-tab>
+	  <uib-tab heading="Grid">
+	    <div ng-controller="gridCtrl">
+	      <div id="grid1" ui-grid="{ data: myData }" class="grid">
+	      </div>
+	    </div>
+	  </uib-tab>
+	  <uib-tab heading="Log">
+	    <button ng-click="clearLog()">Clear log</button>
 	    <br>
-	    <button ng-click="loadData()">Refresh</button>
-	    <button ng-click="deskAlert()">Alert</button><br>
-	    <p>
-	      {{result}}
-	  </div>
-	</uib-tab>
-	<uib-tab heading="Injector">
-	  <div ng-controller="injectCtrl">
-	    <button ng-click="injectControl()">Control</button>
-	    <button ng-click="injectData()">Data</button><br>
-	    <input type="file"
-		   on-read-file="displayFileContents(contents)" /><br/>
-	    <textarea id="inject" ng-model="textinput"></textarea><br>
-	  </div>
-	</uib-tab>
-	<uib-tab heading="Grid">
-	  <div ng-controller="gridCtrl">
-	    <div id="grid1" ui-grid="{ data: myData }"
-		 class="grid"></div>
-	  </div>
-	</uib-tab>
-      </uib-tabset>
+	    <textarea id="textarea1" ng-model="log">
+	    </textarea>
+	  </uib-tab>
+	</uib-tabset>
+      </div>
     </div>
-    </div>
-    <script>
-      var app = angular.module('myApp', ['ui.bootstrap', 'ngTouch',
-      'ui.grid']);
-    app.directive('onReadFile', function ($parse) {
-	return {
-	    restrict: 'A',
-	    scope: false,
-	    link: function(scope, element, attrs) {
-		element.bind('change', function(e) {
-		    var onFileReadFn = $parse(attrs.onReadFile);
-		    var reader = new FileReader();
-		    reader.onload = function() {
-			var fileContents = reader.result;
-			// invoke parsed function on scope
-			// special syntax for passing in data
-			// to named parameters
-			// in the parsed function
-			// we are providing a value for the property 'contents'
-			// in the scope we pass in to the function
-			scope.$apply(function() {
-			    onFileReadFn(scope, {
-				'contents' : fileContents
-			    });
-			});
-		    };
-		    reader.readAsText(element[0].files[0]);
-		});
-	    }
-	};
-    });
-    app.controller('customersCtrl', function($scope, $http) {
-	 $scope.loadData = function() {
-	     $http.get("/test-data").success(function (response) {
-		 $scope.names =
-		     response.records;
-	     });
-	 };
-	 $scope.deskAlert = function() {
-	     $http.get("/desk-alert").success(function (response) {
-		 $scope.log = response;
-	     });
-	 };
-	 var source = new EventSource('/subscribe');
-	 source.onmessage = function (event) {
-	     $scope.result = JSON.parse(event.data);
-	     $scope.$apply();
-	     console.log($scope.result);
-	 };
-      });
-    app.controller('injectCtrl', function($scope, $http) {
-    $scope.displayFileContents = function(contents) {
-    $scope.textinput = contents;
-    };
-    $scope.injectData = function() {
-    $http.post("/inject-data",
-    JSON.parse($scope.textinput),
-    {"headers": {"context-type" : "application/json"}}).success(function (response) {
-    $scope.result = "done";
-    });
-    };
-    $scope.injectControl = function() {
-    $http.post("/inject-control",
-    JSON.parse($scope.textinput),
-    {"headers": {"context-type" : "application/json"}}).success(function (response) {
-    $scope.result = "done";
-    });
-    };
-    });
-    app.controller('TabsDemoCtrl', function ($scope, $window) {
-    });
-    app.controller('gridCtrl', function($scope) {
-    $scope.myData = [
-    {
-    "firstName" : "Cox",
-    "lastName" : "Carney"
-    }
-    ];
-    });
-    </script>
   </body>
 </html>
