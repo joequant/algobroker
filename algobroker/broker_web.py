@@ -4,7 +4,10 @@
 import zmq.green as zmq
 from flask import Flask, send_from_directory, Response, request
 import flask
+
 import algobroker
+algobroker.set_zmq(zmq)
+
 from io import StringIO
 from gevent.queue import Queue
 import sys
@@ -15,7 +18,7 @@ import gevent
 app = Flask(__name__, static_url_path='')
 class BrokerWeb(algobroker.Broker):
     def __init__(self):
-        algobroker.Broker.__init__(self, "broker_web", zmq_ref=zmq)
+        algobroker.Broker.__init__(self, "broker_web")
     def process_data(self, data):
         self.info(data)
 
