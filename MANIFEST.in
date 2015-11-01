@@ -8,3 +8,9 @@ include algobroker/*.py
 include algobroker/test/*.py
 include algobroker/static/*.ogg
 include algobroker/static/*.html
+include algobroker/static/*.js
+include algobroker/static/*.ttf
+include algobroker/static/*.woff
+
+
+
