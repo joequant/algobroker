@@ -15,7 +15,7 @@ import time
 from gevent.wsgi import WSGIServer
 import gevent
 
-app = Flask(__name__, static_url_path='')
+app = Flask(__name__)
 class BrokerWeb(algobroker.Broker):
     def __init__(self):
         algobroker.Broker.__init__(self, "broker_web")
