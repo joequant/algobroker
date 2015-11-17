@@ -3,12 +3,12 @@ var app = angular.module('myApp', ['ui.bootstrap', 'ngTouch',
 
 app.run(function($rootScope) {
     $rootScope.log = "";
-    var source = new EventSource('/subscribe');    
-    source.onmessage = function (event) {
-	$rootScope.log += JSON.parse(event.data);
-	$rootScope.log += "\n";
+    var source = new EventSource('/subscribe');
+    source.addEventListener("log", function(event) {
+	var data = JSON.parse(event.data);
+	$rootScope.log += data.level + ": " + data.msg + "\n";
 	$rootScope.$apply();
-    };
+    });
     $rootScope.clearLog = function() {
 	$rootScope.log = '';
 	$rootScope.$apply();

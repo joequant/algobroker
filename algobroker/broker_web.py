@@ -4,6 +4,7 @@
 import zmq.green as zmq
 from flask import Flask, send_from_directory, Response, request
 import flask
+import json
 
 import algobroker
 algobroker.set_zmq(zmq)
@@ -32,10 +33,10 @@ if __name__ == "__main__":
 subscriptions = []
 # SSE "protocol" is described here: http://mzl.la/UPFyxY
 class ServerSentEvent(object):
-    def __init__(self, data):
-        self.data = data
-        self.event = None
-        self.id = None
+    def __init__(self, data, event=None, id=None):
+        self.data = json.dumps(data)
+        self.event = event
+        self.id = id
         self.desc_map = {
             self.data : "data",
             self.event : "event",
@@ -86,7 +87,10 @@ def debug():
 
 @app.route("/publish")
 def publish():
-    msg = str(time.time())
+    msg = {
+        "level": "info",
+        "msg" : str(time.time())
+        }
     for sub in subscriptions[:]:
         sub.put(msg)
     return "OK"
@@ -99,7 +103,7 @@ def subscribe():
         try:
             while True:
                 result = q.get()
-                ev = ServerSentEvent(str(result))
+                ev = ServerSentEvent(result, "log")
                 yield ev.encode()
         except GeneratorExit: # Or maybe use flask signals
             subscriptions.remove(q)
