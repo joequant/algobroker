@@ -37,7 +37,6 @@ ports = {
     "broker_bitmex" : "tcp://127.0.0.1:5562",
     "ticker_bravenewcoin" : "tcp://127.0.0.1:5563",
     "strategy_xbt_close" : "tcp://127.0.0.1:5564",
-    "broker_desk_alert" : "tcp://127.0.0.1:5565",
     "broker_twilio" : "tcp://127.0.0.1:5566",
     "broker_web" : "tcp://127.0.0.1:5567",
     },
@@ -50,7 +49,6 @@ ports = {
     "broker_bitmex" : "tcp://127.0.0.1:5582",
     "ticker_bravenewcoin" : "tcp://127.0.0.1:5583",
     "strategy_xbt_close" : "tcp://127.0.0.1:5584",
-    "broker_desk_alert" : "tcp://127.0.0.1:5585",
     "broker_twilio" : "tcp://127.0.0.1:5586",
     "broker_web" : "tcp://127.0.0.1:5587",
     }

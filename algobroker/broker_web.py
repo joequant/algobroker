@@ -81,15 +81,6 @@ def injectData():
                     request.json)
     return "OK"
 
-@app.route("/desk-alert")
-def deskalert():
-    bw.send_data("data",
-            [{"dest" : "broker_desk_alert",
-              "cmd" : "alert",
-              "type" : "desk",
-              "alert" : "high"}])
-    return "alert"
-
 @app.route("/debug")
 def debug():
     return "Currently %d subscriptions" % len(subscriptions)

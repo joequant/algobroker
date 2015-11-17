@@ -67,11 +67,6 @@ app.controller('customersCtrl', function($scope, $http) {
 		response.records;
 	});
     };
-    $scope.deskAlert = function() {
-	$http.get("/desk-alert").success(function (response) {
-	    $scope.log = response;
-	});
-    };
     $scope.localAlert = function() {
 	var audio = new Audio("/static/high.ogg");
 	play(audio, 3);
