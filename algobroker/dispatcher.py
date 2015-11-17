@@ -17,6 +17,8 @@ class Dispatcher(algobroker.Broker):
         self.sms_sender.connect(algobroker.ports['data']['broker_plivo'])
         self.bitmex_sender = self.socket(zmq.PUSH)
         self.bitmex_sender.connect(algobroker.ports['data']['broker_bitmex'])
+        self.web_sender = self.socket(zmq.PUSH)
+        self.web_sender.connect(algobroker.ports['data']['broker_web'])
     def process_data(self, data):
         if (data['cmd'] == "log"):
             self.warning(pprint.pformat(data))
@@ -25,7 +27,12 @@ class Dispatcher(algobroker.Broker):
             self.debug("sending sms")
             self.debug(pprint.pformat(data))
             self.sms_sender.send(msgpack.packb(data))
-        elif (data['broker'] == 'bitmex'):
+        elif (data['cmd'] == 'alert' and \
+              data['type'] == 'web'):
+            self.debug("sending web")
+            self.debug(pprint.pformat(data))
+            self.web_sender.send(msgpack.packb(data))
+        elif (data.get('broker', None) == 'bitmex'):
             self.debug("sending bitmex")
             self.debug(pprint.pformat(data))
             self.bitmex_sender.send(msgpack.packb(data))

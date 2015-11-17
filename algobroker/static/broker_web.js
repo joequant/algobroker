@@ -1,3 +1,4 @@
+"use strict"
 var app = angular.module('myApp', ['ui.bootstrap', 'ngTouch',
 				   'ui.grid']);
 
@@ -43,6 +44,22 @@ app.directive('onReadFile', function ($parse) {
     };
 });
 
+function play(audio, times, ended) {
+    if (times <= 0) {
+	return;
+    }
+    var played = 0;
+    audio.addEventListener("ended", function() {
+	played++;
+	if (played < times) {
+	    audio.play();
+	} else if (ended) {
+	    ended();
+	}
+    });
+    audio.play();
+}
+
 app.controller('customersCtrl', function($scope, $http) {
     $scope.loadData = function() {
 	$http.get("/test-data").success(function (response) {
@@ -54,6 +71,10 @@ app.controller('customersCtrl', function($scope, $http) {
 	$http.get("/desk-alert").success(function (response) {
 	    $scope.log = response;
 	});
+    };
+    $scope.localAlert = function() {
+	var audio = new Audio("/static/high.ogg");
+	play(audio, 3);
     };
 });
 

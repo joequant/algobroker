@@ -16,12 +16,21 @@ import time
 from gevent.wsgi import WSGIServer
 import gevent
 
+subscriptions = []
 app = Flask(__name__)
 class BrokerWeb(algobroker.Broker):
     def __init__(self):
         algobroker.Broker.__init__(self, "broker_web")
     def process_data(self, data):
         self.info(data)
+        if (data['cmd'] == "alert" and \
+            data["type"] == "web"):
+            msg = {
+                "level": "info",
+                "msg" : data['text']
+                }
+            for sub in subscriptions[:]:
+                sub.put(msg)
 
 if __name__ == "__main__":
     bw = BrokerWeb()
@@ -30,7 +39,7 @@ if __name__ == "__main__":
     # and send messages by visiting http://localhost:5000/publish
 
 
-subscriptions = []
+
 # SSE "protocol" is described here: http://mzl.la/UPFyxY
 class ServerSentEvent(object):
     def __init__(self, data, event=None, id=None):

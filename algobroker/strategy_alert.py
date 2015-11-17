@@ -18,6 +18,15 @@ class StrategyAlert(algobroker.Strategy):
         self.limits = {}
         self.quotes = {}
         self.maintainence = 60 * 30
+        self.alerts = [
+            {'cmd' : 'alert',
+             'type' : 'sms',
+             'to' : 'trader1'
+             },
+            {'cmd' : 'alert',
+             'type' : 'web'
+             }
+            ]
     def test_limits(self):
         for i in self.limits.keys():
             if i in self.limits and i in self.quotes:
@@ -40,10 +49,9 @@ class StrategyAlert(algobroker.Strategy):
                     msg += "%s - %f - %s | " % (k, self.quotes[k],
                                                 v)
         if msg != "":
-            self.send_action({'cmd' : 'alert',
-                              'type' : 'sms',
-                              'to' : 'trader1',
-                              'text' : msg})
+            for alert in self.alerts:
+                alert['text'] = msg
+                self.send_action(alert)
         for k, v in self.state.items():
             self.prev_state[k] = v
     def test(self):
@@ -62,6 +70,8 @@ class StrategyAlert(algobroker.Strategy):
                 self.debug("setting limits")
                 self.debug(pprint.pformat(data))
                 self.limits = data['limits']
+            if 'alerts' in data:
+                self.alerts = data['alerts']
     def process_data(self, data):
         self.debug("running alert loop")
         self.debug(data)
