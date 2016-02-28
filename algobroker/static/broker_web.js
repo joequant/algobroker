@@ -71,6 +71,10 @@ app.controller('customersCtrl', function($scope, $http) {
 	var audio = new Audio("/static/high.ogg");
 	play(audio, 3);
     };
+    $scope.publish = function() {
+	$http.get("/publish").success(function (response) {
+	});
+    };
 });
 
 app.controller('injectCtrl', function($scope, $http) {
