@@ -62,6 +62,10 @@ class ServerSentEvent(object):
 def hello():
     return app.send_static_file('broker_web.html')
 
+@app.route("/reactjs")
+def reactjs():
+    return app.send_static_file('broker_reactjs.html')
+
 @app.route("/test-data")
 def testdata():
     return flask.jsonify({"records" : [{"Name" : "foo",
