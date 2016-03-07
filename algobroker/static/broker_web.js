@@ -72,7 +72,7 @@ app.controller('customersCtrl', function($scope, $http) {
 	play(audio, 3);
     };
     $scope.publish = function() {
-	$http.get("/publish").success(function (response) {
+	$http.get("/publish-test").success(function (response) {
 	});
     };
 });
