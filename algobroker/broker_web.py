@@ -26,9 +26,17 @@ class BrokerWeb(algobroker.Broker):
         if (data['cmd'] == "alert" and \
             data["type"] == "web"):
             msg = {
+                "id" : "log",
                 "level": "info",
                 "msg" : data['text']
                 }
+            for sub in subscriptions[:]:
+                sub.put(msg)
+        if(data['cmd'] == "send"):
+            msg = data
+            del msg['cmd']
+            if id not in msg:
+                msg['id'] = "log"
             for sub in subscriptions[:]:
                 sub.put(msg)
 
@@ -89,9 +97,10 @@ def injectData():
 def debug():
     return "Currently %d subscriptions" % len(subscriptions)
 
-@app.route("/publish")
+@app.route("/publish-test")
 def publish():
     msg = {
+        "id" : "log",
         "level": "info",
         "msg" : str(time.time())
         }
@@ -107,7 +116,9 @@ def subscribe():
         try:
             while True:
                 result = q.get()
-                ev = ServerSentEvent(result, "log")
+                id = result['id']
+                del result['id']
+                ev = ServerSentEvent(result, id)
                 yield ev.encode()
         except GeneratorExit: # Or maybe use flask signals
             subscriptions.remove(q)
