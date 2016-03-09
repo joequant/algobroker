@@ -117,7 +117,6 @@ def subscribe():
             while True:
                 result = q.get()
                 id = result['id']
-                del result['id']
                 ev = ServerSentEvent(result, id)
                 yield ev.encode()
         except GeneratorExit: # Or maybe use flask signals
