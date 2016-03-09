@@ -10,6 +10,27 @@ var HelloMessage = React.createClass({
     }
 });
 
+var LogBox = React.createClass( {
+    getInitialState: function() {
+	return {data: "HelloWorld\n"};
+    },
+    addData: function (data) {
+	var log = this.state.data;
+	this.setState({data: log + data.level + ": " + data.msg + "\n"});
+    },
+    componentDidMount: function() {
+	var source = new EventSource(this.props.url);
+	var obj = this;
+	source.addEventListener(this.props.event, function(event) {
+	    var data = JSON.parse(event.data);
+	    obj.addData(data);
+	});
+    },
+    render: function() {
+	return (<Input type="textarea" value={this.state.data} />);
+    }
+});
+
 function publish() {
     $.get("/publish-test");
 };
@@ -21,7 +42,7 @@ const tabsInstance = (
     <Tab eventKey={3} title="Tab 3">
       <ButtonToolbar>
 	<Button bsStyle="success" onClick={publish}>Ping</Button>
-	<Input type="textarea" />
+	<LogBox url="/subscribe" event="log" />
       </ButtonToolbar>
     </Tab>
 </Tabs>
