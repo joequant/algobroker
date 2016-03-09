@@ -10,14 +10,17 @@ var HelloMessage = React.createClass({
     }
 });
 
+function publish() {
+    $.get("/publish-test");
+};
 
 const tabsInstance = (
 <Tabs defaultActiveKey={2}>
-    <Tab eventKey={1} title="Tab 1"><helloWorld></helloWorld></Tab>
+    <Tab eventKey={1} title="Tab 1">Hello</Tab>
     <Tab eventKey={2} title="Tab 2"><HelloMessage name="John" /></Tab>
     <Tab eventKey={3} title="Tab 3">
       <ButtonToolbar>
-	<Button bsStyle="success">Ping</Button>
+	<Button bsStyle="success" onClick={publish}>Ping</Button>
 	<Input type="textarea" />
       </ButtonToolbar>
     </Tab>
@@ -29,6 +32,8 @@ var helloWorld = React.createClass({
 	return (<h2>Greetings, from Real Python!</h2>)
     }
 });
+
+
 React.render(
     React.createElement(helloWorld, null),
     document.getElementById('content')
