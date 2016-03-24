@@ -63,6 +63,26 @@ var LogBox = React.createClass( {
     }
 });
 
+var Injector = React.createClass( {
+    injectData : function() {
+	$http.post("/inject-data",
+		   JSON.parse($scope.textinput),
+		   {"headers": {
+		       "context-type" :
+		       "application/json"}}).success(function (response) {
+			   $scope.result = "done";
+		       });
+    },
+    injectCtrl: function() {
+	$http.post("/inject-control",
+		   JSON.parse($scope.textinput),
+		   {"headers": {"context-type" :
+				"application/json"}}).success(function (response) {
+				    $scope.result = "done";
+				});
+    }
+});
+
 function publish() {
     $.get("/publish-test");
 };
