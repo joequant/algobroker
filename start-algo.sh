@@ -9,7 +9,7 @@ python3 algobroker/ticker_yahoo.py &
 python3 algobroker/ticker_bitfutures.py &
 python3 algobroker/ticker_bravenewcoin.py &
 python3 algobroker/broker_web.py &
-python3 init.py &
+
 
 
 

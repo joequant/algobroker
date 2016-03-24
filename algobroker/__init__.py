@@ -7,6 +7,7 @@ _zmq = zmq
 import msgpack
 import time
 import traceback
+from decimal import Decimal
 
 def logger(s : str):
     logger = logging.getLogger(s)
@@ -33,7 +34,7 @@ ports = {
     "broker_plivo" : "tcp://127.0.0.1:5558",
     "strategy_alert" : "tcp://127.0.0.1:5559",
     "ticker_yahoo" : "tcp://127.0.0.1:5560",
-    "ticker_bitfutures" : "tcp://127.0.0.1:5561",
+    "ticker_bitcoin" : "tcp://127.0.0.1:5561",
     "broker_bitmex" : "tcp://127.0.0.1:5562",
     "ticker_bravenewcoin" : "tcp://127.0.0.1:5563",
     "strategy_xbt_close" : "tcp://127.0.0.1:5564",
@@ -45,7 +46,7 @@ ports = {
     "broker_plivo" : "tcp://127.0.0.1:5578",
     "strategy_alert" : "tcp://127.0.0.1:5579",
     "ticker_yahoo" : "tcp://127.0.0.1:5580",
-    "ticker_bitfutures" : "tcp://127.0.0.1:5581",
+    "ticker_bitcoin" : "tcp://127.0.0.1:5581",
     "broker_bitmex" : "tcp://127.0.0.1:5582",
     "ticker_bravenewcoin" : "tcp://127.0.0.1:5583",
     "strategy_xbt_close" : "tcp://127.0.0.1:5584",
@@ -53,6 +54,17 @@ ports = {
     "broker_web" : "tcp://127.0.0.1:5587",
     }
     }
+
+def decode_decimal(obj):
+    if b'__decimal__' in obj:
+        obj = Decimal(obj["as_str"])
+    return obj
+
+def encode_decimal(obj):
+    if isinstance(obj, Decimal):
+        return {'__decimal__': True, 'as_str': str(obj)}
+    return obj    
+
 
 def set_zmq(zmq):
     global _zmq
@@ -63,7 +75,7 @@ def send(name, data):
     for i in data:
         socket = context.socket(_zmq.PUSH)
         socket.connect(ports[name][i['dest']])
-        socket.send(msgpack.packb(i))
+        socket.send(msgpack.packb(i, default=encode_decimal))
 
 
 
@@ -88,13 +100,13 @@ class AlgoObject(object):
         for i in data:
             socket = self._context.socket(zmq.PUSH)
             socket.connect(ports[name][i['dest']])
-            socket.send(msgpack.packb(i))
+            socket.send(msgpack.packb(i, default=encode_decimal))
     def recv_data(self):
         return msgpack.unpackb(self._data_socket.recv(),
-                               encoding='utf-8')
+                               encoding='utf-8', object_hook=decode_decimal)
     def recv_control(self):
         return msgpack.unpackb(self._control_socket.recv(),
-                               encoding='utf-8')
+                               encoding='utf-8', object_hook=decode_decimal)
     def debug(self, s):
         self._logger.debug(s)
     def info(self, s):
@@ -144,11 +156,11 @@ class Strategy(AlgoObject):
         self._action_socket = self.socket(zmq.PUSH)
         self._action_socket.connect(ports['data']['dispatcher'])
     def send_action(self, message):
-        self._action_socket.send(msgpack.packb(message))
+        self._action_socket.send(msgpack.packb(message, default=encode_decimal))
     def send_control(self, to, message):
         socket = self._context.socket(zmq.PUSH)
         socket.connect(ports['control'][to])
-        socket.send(msgpack.packb(message))
+        socket.send(msgpack.packb(message), default=encode_decimal)
 
 class Broker(AlgoObject):
     def __init__(self, name, **kwargs):
@@ -173,7 +185,7 @@ class Ticker(AlgoObject):
         self.debug("Sending quotes")
         self.send_data(self.quotes)
     def send_data(self, message):
-        self._data_socket.send(msgpack.packb(message))
+        self._data_socket.send(msgpack.packb(message, default=encode_decimal))
     def test(self):
         self.get_quotes()
         socket = self._context.socket(zmq.PUSH)

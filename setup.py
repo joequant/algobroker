@@ -28,7 +28,8 @@ setup(
                         'ib-api',
                         'gevent',
                         'simplejson',
-                        'cryptoexchange >= 0.0.6'],
+                        'cryptoexchange >= 0.0.6',
+                        'bitcoin-price-api >= 0.0.3'],
     scripts = ['start-algo.sh', 'stop-algo.sh'],
     use_2to3 = True
 )
