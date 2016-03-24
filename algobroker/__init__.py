@@ -67,6 +67,11 @@ def encode_decimal(obj):
         return {'__decimal__': True, 'as_str': str(obj)}
     return obj
 
+def pack(i):
+    return msgpack.packb(i, default=encode_decimal)
+
+def unpack(i):
+    return msgpack.unpackb(i, encoding='utf-9', object_hook=decode_decimal)
 
 def set_zmq(zmq):
     global _zmq
@@ -78,7 +83,7 @@ def send(name, data):
     for i in data:
         socket = context.socket(_zmq.PUSH)
         socket.connect(ports[name][i['dest']])
-        socket.send(msgpack.packb(i, default=encode_decimal))
+        socket.send(pack(i))
 
 
 class AlgoObject(object):
@@ -105,15 +110,13 @@ class AlgoObject(object):
         for i in data:
             socket = self._context.socket(zmq.PUSH)
             socket.connect(ports[name][i['dest']])
-            socket.send(msgpack.packb(i, default=encode_decimal))
+            socket.send(pack(i))
 
     def recv_data(self):
-        return msgpack.unpackb(self._data_socket.recv(),
-                               encoding='utf-8', object_hook=decode_decimal)
+        return unpack(self._data_socket.recv())
 
     def recv_control(self):
-        return msgpack.unpackb(self._control_socket.recv(),
-                               encoding='utf-8', object_hook=decode_decimal)
+        return unpack(self._control_socket.recv())
 
     def debug(self, s):
         self._logger.debug(s)
@@ -175,13 +178,12 @@ class Strategy(AlgoObject):
         self._action_socket.connect(ports['data']['dispatcher'])
 
     def send_action(self, message):
-        self._action_socket.send(msgpack.packb(
-            message, default=encode_decimal))
+        self._action_socket.send(pack(message))
 
     def send_control(self, to, message):
         socket = self._context.socket(zmq.PUSH)
         socket.connect(ports['control'][to])
-        socket.send(msgpack.packb(message), default=encode_decimal)
+        socket.send(pack(message))
 
 
 class Broker(AlgoObject):
@@ -215,8 +217,8 @@ class Ticker(AlgoObject):
         self.send_data(self.quotes)
 
     def send_data(self, message):
-        self._data_socket.send(msgpack.packb(message, default=encode_decimal))
-
+        self._data_socket.send(pack(message))
+        
     def test(self):
         self.get_quotes()
         socket = self._context.socket(zmq.PUSH)
@@ -224,4 +226,4 @@ class Ticker(AlgoObject):
         message = {'cmd': 'log',
                    'item': self.quotes}
         self._logger.debug("Sending data")
-        socket.send(msgpack.packb(message))
+        socket.send(pack(message))
