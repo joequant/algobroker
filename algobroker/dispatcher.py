@@ -9,7 +9,9 @@ import pprint
 import algobroker
 import msgpack
 
+
 class Dispatcher(algobroker.Broker):
+
     def __init__(self):
         algobroker.Broker.__init__(self, "dispatcher")
         # send work
@@ -19,15 +21,16 @@ class Dispatcher(algobroker.Broker):
         self.bitmex_sender.connect(algobroker.ports['data']['broker_bitmex'])
         self.web_sender = self.socket(zmq.PUSH)
         self.web_sender.connect(algobroker.ports['data']['broker_web'])
+
     def process_data(self, data):
         if (data['cmd'] == "log"):
             self.warning(pprint.pformat(data))
-        elif (data['cmd'] == 'alert' and \
+        elif (data['cmd'] == 'alert' and
               data['type'] == 'sms'):
             self.debug("sending sms")
             self.debug(pprint.pformat(data))
             self.sms_sender.send(msgpack.packb(data))
-        elif (data['cmd'] == 'alert' and \
+        elif (data['cmd'] == 'alert' and
               data['type'] == 'web'):
             self.debug("sending web")
             self.debug(pprint.pformat(data))
@@ -42,4 +45,3 @@ class Dispatcher(algobroker.Broker):
 if __name__ == "__main__":
     dispatcher = Dispatcher()
     dispatcher.run()
-

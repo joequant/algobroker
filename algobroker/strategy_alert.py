@@ -6,7 +6,9 @@ import time
 import algobroker
 import pprint
 
+
 class StrategyAlert(algobroker.Strategy):
+
     def __init__(self):
         algobroker.Strategy.__init__(self, "strategy_alert",
                                      ['ticker_yahoo',
@@ -19,14 +21,15 @@ class StrategyAlert(algobroker.Strategy):
         self.quotes = {}
         self.maintainence = 60 * 30
         self.alerts = [
-            {'cmd' : 'alert',
-             'type' : 'sms',
-             'to' : 'trader1'
+            {'cmd': 'alert',
+             'type': 'sms',
+             'to': 'trader1'
              },
-            {'cmd' : 'alert',
-             'type' : 'web'
+            {'cmd': 'alert',
+             'type': 'web'
              }
-            ]
+        ]
+
     def test_limits(self):
         for i in self.limits.keys():
             if i in self.limits and i in self.quotes:
@@ -37,6 +40,7 @@ class StrategyAlert(algobroker.Strategy):
                     self.state[i] = "high"
                 else:
                     self.state[i] = "ok"
+
     def send_notices(self):
         msg = ""
         for k, v in self.state.items():
@@ -54,15 +58,17 @@ class StrategyAlert(algobroker.Strategy):
                 self.send_action(alert)
         for k, v in self.state.items():
             self.prev_state[k] = v
+
     def test(self):
-        work_message = { 'cmd' : 'log',
-                         'item' : 'hello' }
+        work_message = {'cmd': 'log',
+                        'item': 'hello'}
         self.send_action(work_message)
-        work_message = { 'cmd' : 'alert',
-                         'type' : 'sms',
-                         'to'  : 'trader1',
-                         'text' : 'hello and happy trading' }
+        work_message = {'cmd': 'alert',
+                        'type': 'sms',
+                        'to': 'trader1',
+                        'text': 'hello and happy trading'}
         self.send_action(work_message)
+
     def process_control(self, data):
         algobroker.Strategy.process_control(self, data)
         if data['cmd'] == "set":
@@ -72,6 +78,7 @@ class StrategyAlert(algobroker.Strategy):
                 self.limits = data['limits']
             if 'alerts' in data:
                 self.alerts = data['alerts']
+
     def process_data(self, data):
         self.debug("running alert loop")
         self.debug(data)

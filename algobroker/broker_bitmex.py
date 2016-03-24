@@ -10,10 +10,13 @@ from cryptoexchange import bitmex
 import sys
 import traceback
 
+
 class BrokerBitmex(Broker):
+
     def __init__(self):
         Broker.__init__(self, "broker_bitmex")
         self.api = None
+
     def process_data(self, data):
         if self.api == None:
             self.error("keys not initialized")
@@ -43,6 +46,7 @@ class BrokerBitmex(Broker):
             self.info(pprint.pformat(self.api.position()))
         else:
             raise RuntimeError("unknown data %s" % cmd)
+
     def process_control(self, data):
         if algobroker.Broker.process_control(self, data):
             return True
@@ -69,7 +73,7 @@ class BrokerBitmex(Broker):
                 self.debug(pprint.pformat(self.api.position()))
             except:
                 self.error("Authentication error")
-                self.api=None
+                self.api = None
         else:
             raise RuntimeError("unknown command %s" % cmd)
 

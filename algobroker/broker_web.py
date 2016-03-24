@@ -18,18 +18,22 @@ import gevent
 
 subscriptions = []
 app = Flask(__name__)
+
+
 class BrokerWeb(algobroker.Broker):
+
     def __init__(self):
         algobroker.Broker.__init__(self, "broker_web")
+
     def process_data(self, data):
         self.info(data)
-        if (data['cmd'] == "alert" and \
-            data["type"] == "web"):
+        if (data['cmd'] == "alert" and
+                data["type"] == "web"):
             msg = {
-                "id" : "log",
+                "id": "log",
                 "level": "info",
-                "msg" : data['text']
-                }
+                "msg": data['text']
+            }
             for sub in subscriptions[:]:
                 sub.put(msg)
         if(data['cmd'] == "send"):
@@ -47,18 +51,19 @@ if __name__ == "__main__":
     # and send messages by visiting http://localhost:5000/publish
 
 
-
 # SSE "protocol" is described here: http://mzl.la/UPFyxY
 class ServerSentEvent(object):
+
     def __init__(self, data, event=None, id=None):
         self.data = json.dumps(data)
         self.event = event
         self.id = id
         self.desc_map = {
-            self.data : "data",
-            self.event : "event",
-            self.id : "id"
-            }
+            self.data: "data",
+            self.event: "event",
+            self.id: "id"
+        }
+
     def encode(self):
         if not self.data:
             return ""
@@ -66,47 +71,55 @@ class ServerSentEvent(object):
                  for k, v in self.desc_map.items() if k]
         return "%s\n\n" % "\n".join(lines)
 
+
 @app.route("/")
 def hello():
     return app.send_static_file('broker_web.html')
+
 
 @app.route("/reactjs")
 def reactjs():
     return app.send_static_file('broker_reactjs.html')
 
+
 @app.route("/test-data")
 def testdata():
-    return flask.jsonify({"records" : [{"Name" : "foo",
-                           "Country" : "bar"},
-                          {"Name" : "foo1",
-                           "Country" : "bar1"}]})
+    return flask.jsonify({"records": [{"Name": "foo",
+                                       "Country": "bar"},
+                                      {"Name": "foo1",
+                                       "Country": "bar1"}]})
+
 
 @app.route("/inject-control", methods=['GET', 'POST'])
 def injectControl():
     bw.send_data("control",
-            request.json)
+                 request.json)
     return "OK"
+
 
 @app.route("/inject-data", methods=['GET', 'POST'])
 def injectData():
     bw.send_data("data",
-                    request.json)
+                 request.json)
     return "OK"
+
 
 @app.route("/debug")
 def debug():
     return "Currently %d subscriptions" % len(subscriptions)
 
+
 @app.route("/publish-test")
 def publish():
     msg = {
-        "id" : "log",
+        "id": "log",
         "level": "info",
-        "msg" : str(time.time())
-        }
+        "msg": str(time.time())
+    }
     for sub in subscriptions[:]:
         sub.put(msg)
     return "OK"
+
 
 @app.route("/subscribe")
 def subscribe():
@@ -119,12 +132,12 @@ def subscribe():
                 id = result['id']
                 ev = ServerSentEvent(result, id)
                 yield ev.encode()
-        except GeneratorExit: # Or maybe use flask signals
+        except GeneratorExit:  # Or maybe use flask signals
             subscriptions.remove(q)
     return Response(gen(), mimetype="text/event-stream")
 
 
 if __name__ == "__main__":
-    app.debug=True
+    app.debug = True
     http_server = WSGIServer(('', 5000), app)
     http_server.serve_forever()
