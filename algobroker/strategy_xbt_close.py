@@ -9,13 +9,13 @@ import pprint
 class StrategyXbtClose(algobroker.Strategy):
     def __init__(self):
         algobroker.Strategy.__init__(self, "strategy_xbt_close",
-                                     ['ticker_bravenewcoin'])
+                                     ['ticker_bitcoin'])
         self.range = 0.01
         self.xbt_initial_price = None
         self.xbt_current_price = None
         self.active = True
         self.set_logger_level("DEBUG")
-        self.send_control("ticker_bravenewcoin",
+        self.send_control("ticker_bitcoin",
                           {"cmd" : "set",
                            "assets" : ['btc_usd_24hr']})
     def send_cancel(self):
