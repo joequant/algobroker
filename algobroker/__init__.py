@@ -71,7 +71,7 @@ def pack(i):
     return msgpack.packb(i, default=encode_decimal)
 
 def unpack(i):
-    return msgpack.unpackb(i, encoding='utf-9', object_hook=decode_decimal)
+    return msgpack.unpackb(i, encoding='utf-8', object_hook=decode_decimal)
 
 def set_zmq(zmq):
     global _zmq
