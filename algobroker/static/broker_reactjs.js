@@ -64,6 +64,10 @@ var LogBox = React.createClass( {
 });
 
 var Injector = React.createClass( {
+    mixins: [React.addons.LinkedStateMixin],
+    getInitialState: function() {
+	return {message: 'Hello!'};
+    },
     injectData : function() {
 	$http.post("/inject-data",
 		   JSON.parse($scope.textinput),
@@ -80,6 +84,17 @@ var Injector = React.createClass( {
 				"application/json"}}).success(function (response) {
 				    $scope.result = "done";
 				});
+    },
+    injectTest: function() {
+	this.setState({message : "foo"});
+    },
+    render: function() {
+	return (
+<div>
+<Button bsStyle="success" onClick={this.injectTest}>Test</Button>   
+<Input type="textarea" valueLink={this.linkState('message')} />
+</div>
+	);
     }
 });
 
@@ -89,7 +104,7 @@ function publish() {
 
 const tabsInstance = (
 <Tabs defaultActiveKey={2}>
-    <Tab eventKey={1} title="Tab 1">Hello</Tab>
+    <Tab eventKey={1} title="Injector"><Injector/></Tab>
     <Tab eventKey={2} title="Tab 2"><HelloMessage name="John" /></Tab>
     <Tab eventKey={3} title="Tab 3">
       <ButtonToolbar>
@@ -106,7 +121,6 @@ var helloWorld = React.createClass({
 	return (<h2>Greetings, from Real Python!</h2>)
     }
 });
-
 
 React.render(
     React.createElement(helloWorld, null),
