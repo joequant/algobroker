@@ -72,11 +72,12 @@ class ServerSentEvent(object):
         return "%s\n\n" % "\n".join(lines)
 
 
-@app.route("/")
-def hello():
+@app.route("/angularjs")
+def angularjs():
     return app.send_static_file('broker_web.html')
 
 
+@app.route("/")
 @app.route("/reactjs")
 def reactjs():
     return app.send_static_file('broker_reactjs.html')
