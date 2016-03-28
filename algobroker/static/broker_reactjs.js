@@ -88,10 +88,21 @@ var Injector = React.createClass( {
     injectTest: function() {
 	this.setState({message : "foo"});
     },
+    fileOpen: function(e) {
+	var self = this;
+	var files = e.target.files,
+	    reader = new FileReader();
+	reader.onload = function() {
+	    self.setState({input: this.result});
+	}
+	reader.readAsText(files[0]);
+    },
     render: function() {
 	return (
 <div>
-<Button bsStyle="success" onClick={this.injectTest}>Test</Button>   
+<Button bsStyle="success" onClick={this.injectTest}>Test</Button>
+<Input type="file" onChange={this.fileOpen} />
+<Input type="textarea" valueLink={this.linkState('input')} />
 <Input type="textarea" valueLink={this.linkState('message')} />
 </div>
 	);
