@@ -114,22 +114,22 @@ function publish() {
 };
 
 const tabsInstance = (
-<Tabs defaultActiveKey={2}>
+<Tabs>
     <Tab eventKey={1} title="Injector"><Injector/></Tab>
-    <Tab eventKey={2} title="Tab 2"><HelloMessage name="John" /></Tab>
-    <Tab eventKey={3} title="Tab 3">
+    <Tab eventKey={2} title="Scratchpad">
       <ButtonToolbar>
 	<Button bsStyle="success" onClick={publish}>Ping</Button>
 	<AudioButton url="/static/high.ogg" repeat="3" text="High"/>
 	<LogBox url="/subscribe" event="log" />
       </ButtonToolbar>
     </Tab>
+    <Tab eventKey={3} title="Scratchpad 2"><HelloMessage name="John" /></Tab>
 </Tabs>
 );
 
 var helloWorld = React.createClass({
     render: function() {
-	return (<h2>Greetings, from Real Python!</h2>)
+	return (<h2>Greetings from algobroker</h2>)
     }
 });
 
