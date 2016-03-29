@@ -66,43 +66,44 @@ var LogBox = React.createClass( {
 var Injector = React.createClass( {
     mixins: [React.addons.LinkedStateMixin],
     getInitialState: function() {
-	return {message: 'Hello!'};
+	return {message: 'Hello!',
+		textinput : ''};
     },
-    injectData : function() {
-	$http.post("/inject-data",
-		   JSON.parse($scope.textinput),
-		   {"headers": {
-		       "context-type" :
-		       "application/json"}}).success(function (response) {
-			   $scope.result = "done";
-		       });
+    inject : function() {
+	var self = this;
+	jQuery.ajax({
+	    url: "/inject",
+	    type: "POST",
+	    data: self.state.textinput,
+	    contentType: "application/json; charset=utf-8",
+	    success: function (response) {
+		self.setState({message: response});
+	    }
+	});
     },
-    injectCtrl: function() {
-	$http.post("/inject-control",
-		   JSON.parse($scope.textinput),
-		   {"headers": {"context-type" :
-				"application/json"}}).success(function (response) {
-				    $scope.result = "done";
-				});
+    injectTest : function() {
+	this.setState({message : "test inject"});
     },
-    injectTest: function() {
-	this.setState({message : "foo"});
+    clear: function() {
+	this.setState({textinput : ''});
     },
     fileOpen: function(e) {
 	var self = this;
 	var files = e.target.files,
 	    reader = new FileReader();
 	reader.onload = function() {
-	    self.setState({input: this.result});
+	    self.setState({textinput: this.result});
 	}
 	reader.readAsText(files[0]);
     },
     render: function() {
 	return (
 <div>
+<Button bsStyle="success" onClick={this.inject}>Inject</Button>
+<Button bsStyle="success" onClick={this.clear}>Clear</Button>
 <Button bsStyle="success" onClick={this.injectTest}>Test</Button>
 <Input type="file" onChange={this.fileOpen} />
-<Input type="textarea" valueLink={this.linkState('input')} />
+<Input type="textarea" valueLink={this.linkState('textinput')} />
 <Input type="textarea" valueLink={this.linkState('message')} />
 </div>
 	);

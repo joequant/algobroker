@@ -91,19 +91,10 @@ def testdata():
                                        "Country": "bar1"}]})
 
 
-@app.route("/inject-control", methods=['GET', 'POST'])
-def injectControl():
-    bw.send_data("control",
-                 request.json)
-    return "OK"
-
-
-@app.route("/inject-data", methods=['GET', 'POST'])
-def injectData():
-    bw.send_data("data",
-                 request.json)
-    return "OK"
-
+@app.route("/inject", methods=['GET', 'POST'])
+def inject():
+    algobroker.send(request.json)
+    return "Done"
 
 @app.route("/debug")
 def debug():

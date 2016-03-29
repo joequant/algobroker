@@ -11,9 +11,7 @@ class StrategyAlert(algobroker.Strategy):
 
     def __init__(self):
         algobroker.Strategy.__init__(self, "strategy_alert",
-                                     ['ticker_yahoo',
-                                      'ticker_bitfutures',
-                                      'ticker_bravenewcoin'])
+                                     ['ticker_yahoo'])
         self.time_limits = {}
         self.state = {}
         self.prev_state = {}
@@ -82,9 +80,11 @@ class StrategyAlert(algobroker.Strategy):
     def process_data(self, data):
         self.debug("running alert loop")
         self.debug(data)
-        for k, v in data.items():
-            if 'last' in v:
-                self.quotes[k] = float(v['last'])
+        if "ticker_yahoo" in data:
+            quotes = data['ticker_yahoo']
+            for k, v in quotes.items():
+                if 'last' in v:
+                    self.quotes[k] = float(v['last'])
         self.test_limits()
         self.send_notices()
 

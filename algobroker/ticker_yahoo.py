@@ -21,12 +21,14 @@ class YahooTicker(algobroker.Ticker):
     def get_quotes(self):
         self.debug("getting quotes")
         try:
+            quotes = {}
             for i in self.assets:
                 yahoo = Share(i)
-                self.quotes[i] = {
+                quotes[i] = {
                     "source": "yahoo",
                     "last": float(yahoo.get_price())
                 }
+            return quotes
         except OSError:
             self.error("Network Error")
 

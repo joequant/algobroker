@@ -1,4 +1,4 @@
-# Copyright (C) 2015 Bitquant Research Laboratories (Asia) Limited
+# Copyright (C) 2016 Bitquant Research Laboratories (Asia) Limited
 # Released under the Simplified BSD License
 
 import logging
@@ -78,18 +78,19 @@ def set_zmq(zmq):
     _zmq = zmq
 
 
-def send(name, data):
+def send(data):
     context = _zmq.Context()
-    for i in data:
-        socket = context.socket(_zmq.PUSH)
-        socket.connect(ports[name][i['dest']])
-        socket.send(pack(i))
-
+    for k, v in data.items():
+        for i in v:
+            socket = context.socket(zmq.PUSH)
+            socket.connect(ports[k][i['dest']])
+            socket.send(pack(i))
 
 class AlgoObject(object):
 
     def __init__(self, name: str, socket_type):
         self._logger = logger(name)
+        self._name = name
         self._context = _zmq.Context()
         self._poller = _zmq.Poller()
         self._data_socket = self.socket(socket_type)
@@ -105,12 +106,6 @@ class AlgoObject(object):
 
     def socket(self, socket_type):
         return self._context.socket(socket_type)
-
-    def send_data(self, name, data):
-        for i in data:
-            socket = self._context.socket(zmq.PUSH)
-            socket.connect(ports[name][i['dest']])
-            socket.send(pack(i))
 
     def recv_data(self):
         return unpack(self._data_socket.recv())
@@ -202,28 +197,30 @@ class Ticker(AlgoObject):
         AlgoObject.__init__(self, name, _zmq.PUB, **kwargs)
         self._data_socket.bind(ports['data'][name])
         self.timeout = 30000
-        self.quotes = {}
 
     def run_once(self):
         self.debug("running loop function")
-        self.get_quotes()
-        self.send_quotes()
+        quotes = self.get_quotes()
+        if quotes is not None:
+            self.send_quotes({self._name : quotes})
+
+    def get_quotes(self):
+        return None
 
     def process_control(self, data):
         return AlgoObject.process_control(self, data)
 
-    def send_quotes(self):
+    def send_quotes(self, quotes):
         self.debug("Sending quotes")
-        self.send_data(self.quotes)
-
-    def send_data(self, message):
-        self._data_socket.send(pack(message))
+        self._data_socket.send(pack(quotes))
         
     def test(self):
-        self.get_quotes()
+        quotes = self.get_quotes()
+        if quotes is None:
+            return
         socket = self._context.socket(zmq.PUSH)
         socket.bind(ports['data']['dispatcher'])
         message = {'cmd': 'log',
-                   'item': self.quotes}
+                   'item': quotes}
         self._logger.debug("Sending data")
         socket.send(pack(message))

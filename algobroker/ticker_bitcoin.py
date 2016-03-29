@@ -51,7 +51,7 @@ class BitcoinTicker(algobroker.Ticker):
     def get_quotes(self):
         self.debug("getting quotes")
         self.debug(self.exchange_data)
-        self.quotes = self.exchange_data
+        return self.exchange_data
 
     def process_control(self, data):
         if algobroker.Ticker.process_control(self, data):
@@ -60,15 +60,26 @@ class BitcoinTicker(algobroker.Ticker):
             if 'exchanges' in data:
                 self.exchange_data = {}
                 self.debug("stopping threads")
-                for t in self.exchange_threads.values():
-                    t.stop()
                 self.debug("setting exchange list")
                 self.debug(pprint.pformat(data['exchanges']))
                 for e in data['exchanges']:
+                    if e in self.exchange_threads:
+                        self.exchange_threads[e].stop()
                     self.exchange_threads[e] = BitcoinThread(e,
                                                              self,
                                                              self.thread_delay)
                     self.exchange_threads[e].start()
+        elif data['cmd'] == "unset":
+            if 'exchanges' in data:
+                for e in data['exchanges']:
+                    if e in self.exchange_threads:
+                        self.exchange_threads[e].stop()
+                    if e in self.exchange_data:
+                        del(e)
+        elif data['cmd'] == "unset_all":
+                for t in self.exchange_threads.values():
+                    t.stop()
+                self.exchange_data = {}
         elif data['cmd'] == "test":
             self.debug("received test message")
             self.test()

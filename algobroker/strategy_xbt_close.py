@@ -17,9 +17,10 @@ class StrategyXbtClose(algobroker.Strategy):
         self.xbt_current_price = None
         self.active = True
         self.set_logger_level("DEBUG")
+        self.exchange = 'bravenewcoin'
         self.send_control("ticker_bitcoin",
                           {"cmd": "set",
-                           "assets": ['btc_usd_24hr']})
+                           "exchanges": [self.exchange]})
 
     def send_cancel(self):
         msg = "XBT orders cancelled"
@@ -44,16 +45,19 @@ class StrategyXbtClose(algobroker.Strategy):
                 self.xbt_initial_price = self.xbt_current_price
 
     def process_data(self, data):
-        if 'btc_usd_24hr' in data and 'last' in data['btc_usd_24hr']:
-            self.xbt_current_price = float(data['btc_usd_24hr']['last'])
-            if self.xbt_initial_price == None:
-                self.debug("setting price to %f" % self.xbt_current_price)
-                self.xbt_initial_price = self.xbt_current_price
-        if (self.xbt_current_price <
-                self.xbt_initial_price * (1 - self.range) or
-                self.xbt_current_price >
-                self.xbt_initial_price * (1 + self.range)):
-            self.send_cancel()
+        if "ticker_bitcoin" in data and \
+               self.exchange in data['ticker_bitcoin']:
+            quote = data['ticker_bitcoin'][self.exchange]
+            if 'last' in quote:
+                self.xbt_current_price = float(quote['last'])
+                if self.xbt_initial_price == None:
+                    self.debug("setting price to %f" % self.xbt_current_price)
+                    self.xbt_initial_price = self.xbt_current_price
+                if (self.xbt_current_price <
+                    self.xbt_initial_price * (1 - self.range) or
+                    self.xbt_current_price >
+                    self.xbt_initial_price * (1 + self.range)):
+                    self.send_cancel()
 
 if __name__ == "__main__":
     qm = StrategyXbtClose()
