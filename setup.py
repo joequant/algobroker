@@ -29,7 +29,7 @@ setup(
                       'gevent',
                       'simplejson',
                       'cryptoexchange >= 0.0.6',
-                      'bitcoin-price-api >= 0.0.3'],
-    scripts=['start-algo.sh', 'stop-algo.sh'],
+                      'bitcoin-price-api >= 0.0.4'],
+    scripts=['start-algo.sh', 'stop-algo.sh', 'algoinject.py'],
     use_2to3=True
 )

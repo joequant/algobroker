@@ -1,4 +1,4 @@
-include setup.py
+include setup.py algoinject.py
 include init.py.example
 include *.md
 include *.sh
@@ -11,6 +11,7 @@ include algobroker/static/*.html
 include algobroker/static/*.js
 include algobroker/static/*.ttf
 include algobroker/static/*.woff
+include cmds/*.json
 
 
 
