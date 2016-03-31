@@ -11,13 +11,15 @@ class StrategyAlert(algobroker.Strategy):
 
     def __init__(self):
         algobroker.Strategy.__init__(self, "strategy_alert",
-                                     ['ticker_yahoo'])
+                                     ['ticker_yahoo',
+                                      'ticker_bitcoin'])
         self.time_limits = {}
         self.state = {}
         self.prev_state = {}
         self.limits = {}
         self.quotes = {}
         self.maintainence = 60 * 30
+        self.bitcoin_source = "bravenewcoin"
         self.alerts = [
             {'cmd': 'alert',
              'type': 'sms',
@@ -27,6 +29,9 @@ class StrategyAlert(algobroker.Strategy):
              'type': 'web'
              }
         ]
+        self.send_control("ticker_bitcoin",
+                          {"cmd" : "set",
+                           "exchanges" : [self.bitcoin_source]})
 
     def test_limits(self):
         for i in self.limits.keys():
@@ -85,6 +90,11 @@ class StrategyAlert(algobroker.Strategy):
             for k, v in quotes.items():
                 if 'last' in v:
                     self.quotes[k] = float(v['last'])
+        elif "ticker_bitcoin" in data:
+            quotes = data['ticker_bitcoin']
+            if self.bitcoin_source in quotes:
+                self.quotes['XBT'] = \
+                     float(quotes[self.bitcoin_source]['last'])
         self.test_limits()
         self.send_notices()
 
