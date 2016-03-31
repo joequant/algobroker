@@ -57,7 +57,7 @@ ports = {
 
 
 def decode_decimal(obj):
-    if b'__decimal__' in obj:
+    if '__decimal__' in obj:
         obj = Decimal(obj["as_str"])
     return obj
 
