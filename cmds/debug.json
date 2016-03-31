@@ -5,6 +5,11 @@
         "level": "DEBUG"
     },
     {
+        "dest":  "strategy_alert",
+        "cmd": "loglevel",
+        "level": "DEBUG"
+    },
+    {
         "dest":  "ticker_bitcoin",
         "cmd": "set",
         "exchanges": ["bitfinex"]
