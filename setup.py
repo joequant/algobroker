@@ -30,5 +30,8 @@ setup(
                       'simplejson',
                       'cryptoexchange >= 0.0.6',
                       'bitcoin-price-api >= 0.0.4'],
+    dependency_links=[
+        'git+https://github.com/joequant/cryptoexchange.git#egg=cryptoexchange-0.0.6',
+        'git+https://github.com/joequant/bitcoin-price-api.git#egg=bitcoin-price-api-0.0.5'],
     scripts=['start-algo.sh', 'stop-algo.sh', 'algoinject.py']
 )
